@@ -1,0 +1,14 @@
+Flask==3.0.3
+flask-cors==4.0.1
+Flask-JWT-Extended==4.6.0
+Flask-Limiter==4.1.1
+python-dotenv==1.0.1
+SQLAlchemy==2.0.35
+alembic==1.13.2
+psycopg[binary,pool]==3.2.2
+pydantic 
+pydantic[email] 
+cloudinary==1.45.0
+b2                              # for backblaze. change if needed.
+numpy==2.5.2
+pytest
