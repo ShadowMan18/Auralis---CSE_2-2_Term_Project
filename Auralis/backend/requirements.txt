@@ -10,5 +10,11 @@ pydantic
 pydantic[email] 
 cloudinary==1.45.0
 b2                              # for backblaze. change if needed.
-numpy==2.5.2
+numpy
 pytest
+
+
+
+#Audio Processing
+soundfile
+librosa
