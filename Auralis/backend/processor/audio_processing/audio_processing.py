@@ -28,7 +28,7 @@ import numpy as np
 import soundfile as sf
 import librosa
 
-from resample import Resample
+from Auralis.backend.processor.audio_processing.resample import Resample
 
 
 @dataclass(frozen=True)

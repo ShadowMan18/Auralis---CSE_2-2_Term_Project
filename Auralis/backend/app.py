@@ -45,10 +45,12 @@ def ratelimit_handler(e):
 from auth_service.routes import auth
 # from cloud_service.routes.s3 import cloud
 # from cloud_service.routes.cloudinary import cloud       # choose the cloud provider (use aliasing if both needed)
+from processor.routes import processor
 
 #=== register blueprints here ===#
 app.register_blueprint(auth.auth_bp)
 # app.register_blueprint(cloud.cloud_bp)
+app.register_blueprint(processor.processor_bp)
 
 @app.route('/')
 def home():

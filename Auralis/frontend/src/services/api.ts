@@ -1,13 +1,13 @@
 import api from './ApiService.ts';
 
-interface ApiResponse {
-    message: string;
+interface UploadSampleResponse {
+    species: string[],
+    confidence: number[]
 }
 
-//=== add apis here ===//
-export async function demoApiCall(param: FormData): Promise<ApiResponse> {
-    return api.request<ApiResponse>('/api/demo', {
+export async function uploadSample(uploadFormData: FormData): Promise<UploadSampleResponse> {
+    return await api.request('/api/upload-sample', {
         method: 'POST',
-        body: param
+        body: uploadFormData
     });
 }
