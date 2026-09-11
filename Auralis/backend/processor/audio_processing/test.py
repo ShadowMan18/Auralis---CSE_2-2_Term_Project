@@ -51,9 +51,9 @@ REFERENCES_DIR = SAMPLES_DIR / "references"
 
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from audio_processing import AudioPreprocessor, ConsumerSpec   # noqa: E402
-from stft import stft, log_magnitude_spectrogram                # noqa: E402
-from AudioMatcher import AudioMatcher                           # noqa: E402
+from Auralis.backend.processor.audio_processing.audio_processing import AudioPreprocessor, ConsumerSpec   # noqa: E402
+from Auralis.backend.processor.audio_processing.stft import stft, log_magnitude_spectrogram                # noqa: E402
+from Auralis.backend.processor.audio_processing.audio_matcher import AudioMatcher                           # noqa: E402
 
 
 # ---------------------------------------------------------------------------

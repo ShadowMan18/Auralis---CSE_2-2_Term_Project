@@ -11,7 +11,7 @@ convolution used for resampling.
 """
 
 import numpy as np
-from resample import Resample
+from Auralis.backend.processor.audio_processing.resample import Resample
 
 
 def design_bandpass_fir(low_cutoff_hz, high_cutoff_hz, sample_rate,
