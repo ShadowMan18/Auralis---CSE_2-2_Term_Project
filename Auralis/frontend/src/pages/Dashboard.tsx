@@ -81,16 +81,6 @@ export function Dashboard() {
                         )}
                     />
 
-                    <ul>
-                        {
-                            species.map((s, i) => (
-                                <li key={i}>
-                                    {s}: {confidence[i]}
-                                </li>
-                            ))
-                        }
-                    </ul>
-
                     {serverError && (
                         <p className='text-sm text-destructive'>{serverError}</p>
                     )}
@@ -100,6 +90,16 @@ export function Dashboard() {
                     </Button>
                 </form>
             </Form>
+
+            <ul>
+                {
+                    species.map((s, i) => (
+                        <li key={i}>
+                            {s}: {confidence[i]}
+                        </li>
+                    ))
+                }
+            </ul>
         </div>
     )
 }
