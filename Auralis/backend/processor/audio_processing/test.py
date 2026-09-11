@@ -111,7 +111,8 @@ EXPECTED = {
 
 def spectrogram_for(path: Path, preprocessor: AudioPreprocessor, spec: ConsumerSpec) -> np.ndarray:
     """Run one audio file through preprocessing + STFT -> log-magnitude spectrogram."""
-    windows = preprocessor.process(str(path), spec)
+    with open(path, "rb") as file_obj:
+        windows = preprocessor.process(file_obj, spec)
     # spec.target_duration is None -> segment_or_pad returns exactly one
     # un-padded, whole-clip window.
     samples = windows[0]
@@ -125,7 +126,6 @@ def spectrogram_for(path: Path, preprocessor: AudioPreprocessor, spec: ConsumerS
         fft_size=STFT_FFT_SIZE,
     )
     return log_magnitude_spectrogram(spectrogram)
-
 
 def _discover_audio(directory: Path, exclude_dirs=False):
     """All files under `directory` (non-recursive) whose extension is in

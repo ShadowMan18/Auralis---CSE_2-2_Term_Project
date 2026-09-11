@@ -44,19 +44,20 @@ class ConsumerSpec:
 
 
 class AudioDecoder:
-    """Bytes on disk -> float32 (channels, frames) array + native rate."""
+    """File-like object -> float32 (channels, frames) array + native rate."""
 
-    def decode(self, file_path: str):
+    def decode(self, file_obj):
         try:
-            samples, native_rate = sf.read(file_path, always_2d=True)
+            file_obj.seek(0)
+            samples, native_rate = sf.read(file_obj, always_2d=True)
             samples = samples.T  # (frames, channels) -> (channels, frames)
         except Exception:
             # Compressed / less common containers (mp3, m4a, 3gp, ...)
-            samples, native_rate = librosa.load(file_path, sr=None, mono=False)
+            file_obj.seek(0)
+            samples, native_rate = librosa.load(file_obj, sr=None, mono=False)
             if samples.ndim == 1:
                 samples = samples[np.newaxis, :]
         return samples.astype(np.float32), native_rate
-
 
 class Resampler:
     """Swap this class out if you want the resampling step hand-rolled
@@ -124,8 +125,8 @@ class AmplitudeScaler:
 
 class AudioPreprocessor:
     """
-    Coordinator. Run the same raw file through this multiple times with
-    different ConsumerSpecs — the "two separate forks from one source
+    Coordinator. Run the same raw file object through this multiple times
+    with different ConsumerSpecs -- the "two separate forks from one source
     recording" idea, made concrete.
     """
 
@@ -143,15 +144,19 @@ class AudioPreprocessor:
         self._segmenter = segmenter or Segmenter()
         self._scaler = scaler or AmplitudeScaler()
 
-    def process(self, file_path: str, spec: ConsumerSpec) -> List[np.ndarray]:
+    def process(self, file_obj, spec: ConsumerSpec) -> List[np.ndarray]:
         """
+        `file_obj` is a file-like object opened in binary mode (e.g.
+        `open(path, "rb")`, an uploaded-file stream, or a BytesIO),
+        not a path string.
+
         Returns one float32 array per window, each exactly
         round(spec.target_duration * spec.target_sample_rate) samples
         long, scaled into spec.amplitude_range. If spec.target_duration
         is None, a single un-segmented array is returned as a one-item
         list.
         """
-        samples, native_rate = self._decoder.decode(file_path)
+        samples, native_rate = self._decoder.decode(file_obj)
         samples = self._resampler.resample(samples, native_rate, spec.target_sample_rate)
         samples = self._mixer.downmix(samples, spec.target_channels)
         windows = self._segmenter.segment_or_pad(
@@ -161,7 +166,7 @@ class AudioPreprocessor:
 
 
 if __name__ == "__main__":
-    # One raw recording, three different forks — same AudioPreprocessor,
+    # One raw recording, three different forks -- same AudioPreprocessor,
     # different ConsumerSpec per consumer.
 
     preprocessor = AudioPreprocessor()
@@ -187,25 +192,21 @@ if __name__ == "__main__":
         target_channels=1,
         target_duration=5.0,
         hop_duration=2.5,
-        amplitude_range=(-1.0, 1.0),  # NOT independently confirmed — verify before trusting
+        amplitude_range=(-1.0, 1.0),  # NOT independently confirmed -- verify before trusting
     )
 
     audio_file = Path(__file__).parent / "rec.ogg"
 
-    own_pipeline_windows = preprocessor.process(
-        str(audio_file),
-        own_pipeline_spec
-    )
+    # process() now needs a file object per call -- reopen (or seek(0))
+    # between calls since decode() reads from the current stream position.
+    with open(audio_file, "rb") as f:
+        own_pipeline_windows = preprocessor.process(f, own_pipeline_spec)
 
-    birdnet_windows = preprocessor.process(
-        str(audio_file),
-        birdnet_spec
-    )
+    with open(audio_file, "rb") as f:
+        birdnet_windows = preprocessor.process(f, birdnet_spec)
 
-    perch_windows = preprocessor.process(
-        str(audio_file),
-        perch_spec
-    )
+    with open(audio_file, "rb") as f:
+        perch_windows = preprocessor.process(f, perch_spec)
 
     print("Processing successful!")
     print("Number of windows:", len(own_pipeline_windows))
