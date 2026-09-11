@@ -1,338 +1,204 @@
 """
-End-to-end verification of the DSP detection pipeline.
+processor/services/processor.py
 
-Pipeline under test:
-    raw audio file
-      -> AudioPreprocessor (decode / resample / downmix / normalize)   [preprocess_audio.py]
-      -> stft() + log_magnitude_spectrogram()                         [stft.py]
-      -> AudioMatcher.add_reference() / AudioMatcher.detect()         [audio_matcher.py]
+Business logic for POST /api/upload-sample. The route handler stays thin
+(pull the file off the request, call process_sample, jsonify the result);
+all validation, DSP pipeline wiring, and formatting lives here so it can
+be unit-tested without Flask/JWT in the loop.
 
-Directory layout assumed (adjust SAMPLES_DIR below if different):
+Builds the AudioMatcher reference library directly from the audio files
+in AURALIS_REFERENCES_DIR (default: samples/references/) -- no separate
+build-and-save-a-.pkl step. This is built ONCE per process (cached in
+_matcher below), not per request; rebuilding from raw audio on every
+upload would be far too slow.
 
-    audio_processing/
-        preprocess_audio.py
-        resample.py
-        stft.py
-        audio_matcher.py
-        samples/
-            sample1.mp3
-            sample2.wav
-            ...
-            references/
-                cat.mp3
-                dog.wav
-                ...
-
-Both .mp3 and .wav are supported for references and samples --
-AudioDecoder already handles either via soundfile/librosa, this file just
-needed to *discover* both extensions instead of only *.mp3.
-
-Run it:
-    pytest -v -s test.py
-
-    (the -s is important -- without it you won't see the printed
-    detection results, only pass/fail)
-
-If pytest isn't installed, just run it as a plain script:
-    python test.py
+NOTE on imports below: your bandpass.py currently imports via
+`from processor.audio_processing.resample import Resample`
+while routes.py imports via `from processor.services import processor`.
+Those two imply different PYTHONPATH roots. I've used the same style as
+bandpass.py here -- adjust to match whichever one your actual run
+config (wsgi entrypoint / Docker WORKDIR) uses, since both can't be
+correct simultaneously.
 """
 
-import sys
+import logging
+import os
 from pathlib import Path
 
-import numpy as np
+from processor.audio_processing.audio_processing import (
+    AudioPreprocessor,
+    ConsumerSpec,
+)
+from processor.audio_processing.bandpass import apply_bandpass
+from processor.audio_processing.stft import stft, log_magnitude_spectrogram
+from processor.audio_processing.audio_matcher import AudioMatcher
 
-# ---------------------------------------------------------------------------
-# Path setup -- adjust these two lines if your project layout differs.
-# ---------------------------------------------------------------------------
-PROJECT_ROOT = Path(__file__).resolve().parent          # folder containing the .py modules
-SAMPLES_DIR = PROJECT_ROOT / "samples"
-REFERENCES_DIR = SAMPLES_DIR / "references"
+logger = logging.getLogger(__name__)
 
-sys.path.insert(0, str(PROJECT_ROOT))
+# --- Configuration -------------------------------------------------------
 
-from Auralis.backend.processor.audio_processing.audio_processing import AudioPreprocessor, ConsumerSpec   # noqa: E402
-from Auralis.backend.processor.audio_processing.stft import stft, log_magnitude_spectrogram                # noqa: E402
-from Auralis.backend.processor.audio_processing.audio_matcher import AudioMatcher                           # noqa: E402
+ALLOWED_EXTENSIONS = {".mp3", ".wav", ".flac", ".ogg", ".m4a"}
 
-
-# ---------------------------------------------------------------------------
-# Shared DSP configuration.
-#
-# CRITICAL: these values must be IDENTICAL for every reference and every
-# query. AudioMatcher hashes are (freq_bin_index, freq_bin_index, time_delta)
-# -- if the sample rate or STFT window/hop/FFT size differs between how a
-# reference was built and how a query is built, the bin indices stop
-# corresponding to the same physical frequencies/times and matching breaks
-# silently (you'll just get empty or garbage results, no error).
-# ---------------------------------------------------------------------------
-TARGET_SAMPLE_RATE = 22050
-STFT_WINDOW_SEC = 0.046      # ~1024 samples at 22050 Hz
-STFT_HOP_SEC = 0.012         # ~256 samples at 22050 Hz
-STFT_WINDOW_TYPE = "hann"
-STFT_FFT_SIZE = None         # defaults to window length
-
-FINGERPRINT_KWARGS = dict(fan_out=5, min_time_delta=1, max_time_delta=100)
-EXTRACT_KWARGS = dict(
-    neighborhood_size=(15, 15),
-    amplitude_floor_db=-40.0,
-    num_zones_freq=4,
-    num_zones_time=8,
-    peaks_per_zone=5,
+REFERENCES_DIR = os.environ.get(
+    "AURALIS_REFERENCES_DIR",
+    str(Path(__file__).resolve().parent.parent / "audio_processing" / "samples" / "references"),
 )
 
-# Detection thresholds -- tune once you've looked at real score distributions.
-MIN_RAW_COUNT = 1
-SCORE_THRESHOLD = 0.0
-TOP_K = 5
+# Must exactly match whatever's used for the query spectrograms below --
+# a mismatch here doesn't error, it just silently produces garbage scores
+# (the whole hash scheme depends on identical freq-bin/time-bin mapping).
+REFERENCE_SPEC = ConsumerSpec(
+    target_sample_rate=22050,
+    target_channels=1,
+    target_duration=None,  # whole clip, no windowing -- one reference call = one unit
+)
+QUERY_SPEC = ConsumerSpec(
+    target_sample_rate=22050,
+    target_channels=1,
+    target_duration=3.0,
+    hop_duration=1.5,
+    amplitude_range=(-1.0, 1.0),
+)
+BANDPASS_PARAMS = dict(low_cutoff_hz=50.0, high_cutoff_hz=10000.0, transition_bandwidth_hz=200.0)
+STFT_PARAMS = dict(window_length_sec=0.046, hop_length_sec=0.012, window_type="hann")
 
-# Extensions that count as audio for both references and samples.
-AUDIO_EXTENSIONS = (".mp3", ".wav")
-
-# ---------------------------------------------------------------------------
-# Ground truth. Fill this in once you know what's actually mixed into each
-# sample*.{mp3,wav} -- keys are the file stem ("sample1"), values are either:
-#   - a single species name (str)            -> top match must equal it
-#   - a set/list of species names             -> top match must be one of them,
-#                                                OR any of them must appear
-#                                                somewhere in the results
-# Leave a sample out of this dict to skip strict assertion and just print
-# what was detected (useful while you're still labeling samples).
-#
-# generate_test_samples.py prints/writes a ready-to-paste version of this
-# dict (and samples/ground_truth.json) after it builds synthetic samples.
-# ---------------------------------------------------------------------------
-EXPECTED = {
-    "sample1": {"cat", "cow", "crow"},
-    "sample2": {"dog", "goat", "horse", "monkey"},
-    "sample3": {"cow", "crow", "goat", "rooster"},
-}
+# Below this, a species is not reported -- still a placeholder. Given the
+# noise-sensitivity we measured earlier (clean self-match ~0.8, noisy
+# mixture ~0.04-0.08), 0.15 may be rejecting real detections on noisy
+# input -- validate against real score distributions once you have some,
+# rather than trusting this number as-is.
+CONFIDENCE_THRESHOLD = 0.15
 
 
-def spectrogram_for(path: Path, preprocessor: AudioPreprocessor, spec: ConsumerSpec) -> np.ndarray:
-    """Run one audio file through preprocessing + STFT -> log-magnitude spectrogram."""
-    with open(path, "rb") as file_obj:
-        windows = preprocessor.process(file_obj, spec)
-    # spec.target_duration is None -> segment_or_pad returns exactly one
-    # un-padded, whole-clip window.
-    samples = windows[0]
+# --- Reference library: build once from the references folder, reuse -----
 
-    spectrogram, _freqs, _times = stft(
-        samples,
-        spec.target_sample_rate,
-        window_length_sec=STFT_WINDOW_SEC,
-        hop_length_sec=STFT_HOP_SEC,
-        window_type=STFT_WINDOW_TYPE,
-        fft_size=STFT_FFT_SIZE,
+_matcher = None
+
+
+def _compute_log_spectrogram(waveform, sample_rate):
+    filtered = apply_bandpass(waveform, sample_rate, **BANDPASS_PARAMS)
+    spectrogram_complex, _freqs, _times = stft(filtered, sample_rate, **STFT_PARAMS)
+    return log_magnitude_spectrogram(spectrogram_complex)
+
+
+def _build_matcher_from_references():
+    references_dir = Path(REFERENCES_DIR)
+    if not references_dir.exists():
+        raise FileNotFoundError(f"References folder not found: {references_dir}")
+
+    reference_files = sorted(
+        p for p in references_dir.iterdir()
+        if p.is_file() and p.suffix.lower() in ALLOWED_EXTENSIONS
     )
-    return log_magnitude_spectrogram(spectrogram)
+    if not reference_files:
+        raise FileNotFoundError(f"No reference audio files found in {references_dir}")
 
-def _discover_audio(directory: Path, exclude_dirs=False):
-    """All files under `directory` (non-recursive) whose extension is in
-    AUDIO_EXTENSIONS, case-insensitive, sorted by name."""
-    if not directory.is_dir():
-        return []
-    files = [
-        p for p in directory.iterdir()
-        if p.is_file() and p.suffix.lower() in AUDIO_EXTENSIONS
-    ]
-    return sorted(files)
+    preprocessor = AudioPreprocessor()
+    matcher = AudioMatcher()
 
+    for path in reference_files:
+        species_id = path.stem  # "cat.mp3" -> "cat"
+        with open(path, "rb") as file_obj:
+            windows = preprocessor.process(file_obj, REFERENCE_SPEC)
+        waveform = windows[0]  # target_duration=None -> exactly one, whole-clip window
+        spectrogram = _compute_log_spectrogram(waveform, REFERENCE_SPEC.target_sample_rate)
+        matcher.add_reference(species_id, spectrogram)
+        logger.info("Added reference '%s' from %s", species_id, path.name)
 
-def discover_reference_files():
-    return _discover_audio(REFERENCES_DIR)
+        if matcher.reference_hash_counts.get(species_id, 0) == 0:
+            logger.warning(
+                "'%s' produced ZERO fingerprint hashes -- likely too quiet/short "
+                "for the current extract_keypoints settings.", species_id
+            )
 
-
-def discover_sample_files():
-    # Only files directly under SAMPLES_DIR -- references/ is a subfolder
-    # and its contents don't count as samples.
-    return [p for p in _discover_audio(SAMPLES_DIR) if p.parent == SAMPLES_DIR]
-
-
-def build_matcher(preprocessor: AudioPreprocessor, spec: ConsumerSpec, reference_files):
-    matcher = AudioMatcher(**FINGERPRINT_KWARGS)
-    for ref_path in reference_files:
-        species = ref_path.stem  # "cat.mp3" -> "cat", "cat.wav" -> "cat"
-        log_spec = spectrogram_for(ref_path, preprocessor, spec)
-        matcher.add_reference(species, log_spec, **EXTRACT_KWARGS)
     return matcher
 
 
-def format_results(results):
-    lines = []
-    for species, info in results:
-        lines.append(
-            f"  {species:<15s} score={info['score']:.4f}  "
-            f"raw_count={info['raw_count']:4d}  offset={info['offset']}"
+def _get_matcher():
+    """Lazily build the AudioMatcher from the references folder, once per
+    process. Rebuilding on every request would be far too slow -- this
+    caches the result in-memory after the first call."""
+    global _matcher
+    if _matcher is None:
+        logger.info("Building reference library from %s", REFERENCES_DIR)
+        _matcher = _build_matcher_from_references()
+        logger.info(
+            "Reference library built: %d species", len(_matcher.reference_hash_counts)
         )
-    return "\n".join(lines) if lines else "  (no matches above threshold)"
+    return _matcher
 
 
-# ---------------------------------------------------------------------------
-# pytest section
-# ---------------------------------------------------------------------------
-try:
-    import pytest
-
-    @pytest.fixture(scope="session")
-    def preprocessor():
-        return AudioPreprocessor()
-
-    @pytest.fixture(scope="session")
-    def consumer_spec():
-        return ConsumerSpec(
-            target_sample_rate=TARGET_SAMPLE_RATE,
-            target_channels=1,
-            target_duration=None,   # whole clip, no windowing -- fingerprinting
-            hop_duration=None,      # needs the full spectrogram, not fixed chunks
-            amplitude_range=(-1.0, 1.0),
-        )
-
-    @pytest.fixture(scope="session")
-    def reference_files():
-        files = discover_reference_files()
-        if not files:
-            pytest.skip(f"No reference audio found in {REFERENCES_DIR}")
-        return files
-
-    @pytest.fixture(scope="session")
-    def matcher(preprocessor, consumer_spec, reference_files):
-        return build_matcher(preprocessor, consumer_spec, reference_files)
-
-    def _sample_ids(path):
-        # pytest probes this with its own NOTSET sentinel during collection
-        # when the parametrize list is empty -- must not blow up on that.
-        return path.stem if isinstance(path, Path) else "no-samples-found"
-
-    _sample_files = discover_sample_files()
-
-    @pytest.mark.parametrize(
-        "sample_path",
-        _sample_files if _sample_files else [None],
-        ids=_sample_ids,
-    )
-    def test_species_detected(sample_path, preprocessor, consumer_spec, matcher):
-        if sample_path is None:
-            pytest.skip(
-                f"No sample*.mp3/.wav files found directly under {SAMPLES_DIR} "
-                f"(files inside references/ don't count -- check filenames/extensions)"
-            )
-
-        log_spec = spectrogram_for(sample_path, preprocessor, consumer_spec)
-        results = matcher.detect(
-            log_spec,
-            min_raw_count=MIN_RAW_COUNT,
-            threshold=SCORE_THRESHOLD,
-            top_k=TOP_K,
-            **EXTRACT_KWARGS,
-        )
-
-        print(f"\n{sample_path.name} detections:\n{format_results(results)}")
-
-        assert results, (
-            f"No species detected in {sample_path.name} -- check STFT params, "
-            f"EXTRACT_KWARGS, or that the reference library actually loaded."
-        )
-
-        top_species, top_info = results[0]
-        expected = EXPECTED.get(sample_path.stem)
-
-        if expected is None:
-            pytest.skip(
-                f"No ground truth recorded for '{sample_path.stem}' yet -- "
-                f"top match was '{top_species}' (score={top_info['score']:.4f}). "
-                f"Add it to EXPECTED once you've confirmed it by ear."
-            )
-        elif isinstance(expected, (set, list, tuple)):
-            detected_species = {s for s, _ in results}
-            assert detected_species & set(expected), (
-                f"expected one of {expected} in results, got: "
-                f"{[s for s, _ in results]}"
-            )
-        else:
-            assert top_species == expected, (
-                f"expected top match '{expected}', got '{top_species}' "
-                f"(score={top_info['score']:.4f})\nfull results:\n{format_results(results)}"
-            )
-
-    def test_reference_library_not_empty(matcher, reference_files):
-        assert matcher.reference_hash_counts, "reference index is empty after loading references"
-        for ref_path in reference_files:
-            species = ref_path.stem
-            assert matcher.reference_hash_counts.get(species, 0) > 0, (
-                f"'{species}' produced zero fingerprint hashes -- likely too short/quiet, "
-                f"or extract_keypoints/EXTRACT_KWARGS need tuning for this clip"
-            )
-
-    _HAVE_PYTEST = True
-
-except ImportError:
-    _HAVE_PYTEST = False
+def _detect_in_windows(matcher, windows, sample_rate):
+    """Run matcher.detect() per window; keep the best (max) score per
+    species across the whole recording -- Stage 8 window aggregation."""
+    best_scores = {}
+    for window in windows:
+        spectrogram = _compute_log_spectrogram(window, sample_rate)
+        for species, info in matcher.detect(spectrogram):
+            if species not in best_scores or info["score"] > best_scores[species]:
+                best_scores[species] = info["score"]
+    return best_scores
 
 
-# ---------------------------------------------------------------------------
-# Plain-script fallback (no pytest required)
-# ---------------------------------------------------------------------------
-def run_plain():
-    preprocessor = AudioPreprocessor()
-    spec = ConsumerSpec(
-        target_sample_rate=TARGET_SAMPLE_RATE,
-        target_channels=1,
-        target_duration=None,
-        hop_duration=None,
-        amplitude_range=(-1.0, 1.0),
+# --- Public entry point ----------------------------------------------------
+
+def process_sample(sample):
+    """
+    Run an uploaded audio file through the DSP detection pipeline.
+
+    Parameters
+    ----------
+    sample : werkzeug.datastructures.FileStorage or None
+        The 'sample' file from request.files.get('sample').
+
+    Returns
+    -------
+    (dict, int) -- matches the (result, status) contract the route
+    handler expects: `return jsonify(result), status`.
+    """
+    if sample is None or not sample.filename:
+        return {
+            "error": "No file uploaded. Expected a 'sample' field in multipart/form-data."
+        }, 400
+
+    extension = Path(sample.filename).suffix.lower()
+    if extension not in ALLOWED_EXTENSIONS:
+        return {
+            "error": f"Unsupported file type '{extension}'. Allowed: {sorted(ALLOWED_EXTENSIONS)}"
+        }, 415
+
+    try:
+        matcher = _get_matcher()
+    except FileNotFoundError as exc:
+        logger.error("Reference library unavailable: %s", exc)
+        return {"error": "Detection service is not ready (no reference audio found)."}, 503
+
+    try:
+        # sample is a werkzeug FileStorage -- it delegates read/seek/tell to
+        # its underlying stream, so it satisfies the file_obj interface
+        # AudioPreprocessor.process() expects directly. No temp file needed.
+        preprocessor = AudioPreprocessor()
+        windows = preprocessor.process(sample, QUERY_SPEC)
+
+        best_scores = _detect_in_windows(matcher, windows, QUERY_SPEC.target_sample_rate)
+        logger.info("Raw scores (pre-threshold) for '%s': %s", sample.filename, best_scores)
+
+    except Exception:
+        logger.exception("Failed to process uploaded sample '%s'", sample.filename)
+        return {"error": "Failed to process the uploaded audio file."}, 422
+
+    detected = [
+        (species, score) for species, score in best_scores.items()
+        if score >= CONFIDENCE_THRESHOLD
+    ]
+    detected.sort(key=lambda pair: pair[1], reverse=True)
+
+    logger.info(
+        "Processed '%s': %d species above threshold (of %d candidates)",
+        sample.filename, len(detected), len(best_scores),
     )
 
-    reference_files = discover_reference_files()
-    if not reference_files:
-        print(f"No reference audio found in {REFERENCES_DIR}")
-        return 1
-
-    print(f"Building reference library from {len(reference_files)} file(s)...")
-    matcher = build_matcher(preprocessor, spec, reference_files)
-    for species, count in matcher.reference_hash_counts.items():
-        print(f"  {species:<15s} {count} hashes")
-
-    sample_files = discover_sample_files()
-    if not sample_files:
-        print(f"No sample*.mp3/.wav files found in {SAMPLES_DIR}")
-        return 1
-
-    exit_code = 0
-    for sample_path in sample_files:
-        log_spec = spectrogram_for(sample_path, preprocessor, spec)
-        results = matcher.detect(
-            log_spec,
-            min_raw_count=MIN_RAW_COUNT,
-            threshold=SCORE_THRESHOLD,
-            top_k=TOP_K,
-            **EXTRACT_KWARGS,
-        )
-        print(f"\n{sample_path.name} detections:")
-        print(format_results(results))
-
-        if not results:
-            exit_code = 1
-            continue
-
-        top_species, top_info = results[0]
-        expected = EXPECTED.get(sample_path.stem)
-        if expected is None:
-            print(f"  (no ground truth recorded for '{sample_path.stem}' yet)")
-        else:
-            ok = (top_species in expected) if isinstance(expected, (set, list, tuple)) else (top_species == expected)
-            status = "OK" if ok else "MISMATCH"
-            print(f"  expected={expected}  top={top_species}  -> {status}")
-            if not ok:
-                exit_code = 1
-
-    return exit_code
-
-
-if __name__ == "__main__":
-    if _HAVE_PYTEST:
-        import pytest as _pytest
-        raise SystemExit(_pytest.main([__file__, "-v", "-s"]))
-    else:
-        print("pytest not found -- running as a plain script instead.\n")
-        raise SystemExit(run_plain())
+    return {
+        "species": [species for species, _ in detected],
+        "confidence": [round(score, 4) for _, score in detected],
+    }, 200
