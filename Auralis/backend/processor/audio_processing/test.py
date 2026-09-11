@@ -28,13 +28,13 @@ AudioDecoder already handles either via soundfile/librosa, this file just
 needed to *discover* both extensions instead of only *.mp3.
 
 Run it:
-    pytest -v -s test_species_detection.py
+    pytest -v -s test.py
 
     (the -s is important -- without it you won't see the printed
     detection results, only pass/fail)
 
 If pytest isn't installed, just run it as a plain script:
-    python test_species_detection.py
+    python test.py
 """
 
 import sys
