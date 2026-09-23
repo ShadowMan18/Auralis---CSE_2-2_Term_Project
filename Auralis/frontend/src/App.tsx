@@ -13,6 +13,7 @@ import { Signup } from './pages/auth/Signup';
 import { Login } from './pages/auth/Login';
 import { Logout } from './pages/auth/Logout';
 import { Home } from './pages/Home';
+import { LearnMore } from './pages/LearnMore';
 import { Dashboard } from './pages/Dashboard';
 
 export default function App() {
@@ -25,36 +26,32 @@ export default function App() {
               <BrowserRouter>
                 <Routes>
                   
-                  {/* public-only routes */}
-                  <Route element={<RequireGuest />}>
+                  {/* Public informational & landing routes */}
+                  <Route path='/' element={<Home />} />
+                  <Route path='/home' element={<Home />} />
+                  <Route path='/learn-more' element={<LearnMore />} />
 
-                    <Route path='/' element={<Home />} />
-                    <Route path='/home' element={<Home />} />
+                  {/* Guest-only routes (redirects to /dashboard if logged in) */}
+                  <Route element={<RequireGuest />}>
                     <Route path='/auth/signup' element={<Signup />} />
                     <Route path='/auth/login' element={<Login />} />
-
                   </Route>
 
-                  {/* protected routes */}
+                  {/* Protected routes (requires valid login) */}
                   <Route element={<RequireAuth />}>
-                    
-                    {/* role independent routes */}
+                    <Route path='/dashboard' element={<Dashboard />} />
                     <Route path='/auth/logout' element={<Logout />} />
                     <Route path='/unauthorized' element={<Unauthorized />} />
-                    <Route path='/dashboard' element={<Dashboard />} />
 
-                    {/* role dependent routes */}
-                    <Route element={<RequireRole allowed={['admin']}/>}>
-
+                    {/* Role dependent routes */}
+                    <Route element={<RequireRole allowed={['admin']} />}>
                     </Route>
 
-                    <Route element={<RequireRole allowed={['client']}/>}>
-                    
+                    <Route element={<RequireRole allowed={['client']} />}>
                     </Route>
-
                   </Route>
 
-                  {/* public routes */}
+                  {/* 404 Catch-all */}
                   <Route path='*' element={<NotFound />} />
 
                 </Routes>
@@ -64,5 +61,5 @@ export default function App() {
         </LanguageProvider>
       </ThemeProvider>
     </AuthProvider>
-  )
+  );
 }
