@@ -17,6 +17,7 @@ decides training-time class resolution from recording counts.
 Usage:
     python build_taxonomy_classes.py --min-count 10
     python build_taxonomy_classes.py --min-count 10 --supercategory Mammalia
+    python build_taxonomy_classes.py --species-only
 """
 import argparse
 import json
@@ -44,7 +45,8 @@ def species_label(category):
     return f"{common} ({scientific})" if common and common != scientific else scientific
 
 
-def build_assignments(categories, counts, min_count, only_supercategory=None):
+def build_assignments(categories, counts, min_count, only_supercategory=None,
+                      species_only=False):
     """Returns {category_id: (final_label, resolution, recordings_in_final_class)}"""
     # group species under each ancestor taxon
     by_genus, by_family, by_order, by_class = (defaultdict(list) for _ in range(4))
@@ -64,7 +66,7 @@ def build_assignments(categories, counts, min_count, only_supercategory=None):
         if only_supercategory and c["supercategory"] != only_supercategory:
             continue
         n = counts.get(c["id"], 0)
-        if n >= min_count:
+        if species_only or n >= min_count:
             assignments[c["id"]] = (species_label(c), "species", n)
             continue
         genus_cats = by_genus[c["genus"]]
@@ -87,6 +89,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--train-json", type=Path, default=HERE / "train.json")
     parser.add_argument("--min-count", type=int, default=10)
+    parser.add_argument("--species-only", action="store_true",
+                        help="make every iNat category its own species label, including one-recording "
+                             "species; disables genus/family/order rollups")
     parser.add_argument("--supercategory", default=None,
                          help="Restrict to one taxonomic class, e.g. Mammalia. Omit for all.")
     parser.add_argument("--out", type=Path, default=HERE / "species_class_assignments.json")
@@ -96,11 +101,13 @@ def main():
     categories = data["categories"]
     counts = Counter(a["category_id"] for a in data["annotations"])
 
-    assignments = build_assignments(categories, counts, args.min_count, args.supercategory)
+    assignments = build_assignments(categories, counts, args.min_count, args.supercategory,
+                                    species_only=args.species_only)
 
     by_resolution = Counter(v[1] for v in assignments.values())
     final_labels = {v[0] for v in assignments.values() if v[0] is not None}
-    print(f"min_count={args.min_count}  scope={args.supercategory or 'ALL'}")
+    resolution_mode = "species-only" if args.species_only else f"min_count={args.min_count}"
+    print(f"{resolution_mode}  scope={args.supercategory or 'ALL'}")
     print(f"species considered: {len(assignments)}")
     print(f"resolution breakdown: {dict(by_resolution)}")
     print(f"final training classes: {len(final_labels)}")
