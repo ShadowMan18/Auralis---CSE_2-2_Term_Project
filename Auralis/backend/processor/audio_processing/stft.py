@@ -86,6 +86,69 @@ def log_magnitude_spectrogram(spectrogram, floor_db=-80.0):
     return np.maximum(db, floor_db)
 
 
+def build_log_freq_filterbank(freqs, num_bins=128, fmin=50.0, fmax=None):
+    """
+    Triangular filterbank mapping linear FFT bins onto log2-spaced center
+    frequencies (mel-like, but plain log2 rather than the mel formula --
+    simpler, and all that's actually needed here).
+
+    Why this matters for matching: on a LINEAR frequency axis, a pitch
+    shift multiplies every harmonic's frequency by a constant factor, so
+    it lands on a different, unpredictable bin depending on the harmonic's
+    absolute frequency. On a LOG frequency axis, that same multiplicative
+    shift becomes a constant ADDITIVE bin shift -- every harmonic moves by
+    the same number of bins. That's what makes a relative-frequency hash
+    (AudioMatcher's pitch_invariant mode, which hashes freq2 - freq1
+    instead of the absolute bins) actually pitch-shift invariant: the
+    difference between two bins on this axis is unchanged by a constant
+    shift, even though the absolute bins both moved.
+    """
+    if fmax is None:
+        fmax = freqs[-1]
+    log_fmin = np.log2(max(fmin, 1e-6))
+    log_fmax = np.log2(fmax)
+    centers_log = np.linspace(log_fmin, log_fmax, num_bins + 2)
+    centers_hz = 2.0 ** centers_log
+
+    filterbank = np.zeros((num_bins, len(freqs)), dtype=np.float64)
+    for i in range(num_bins):
+        f_lo, f_center, f_hi = centers_hz[i], centers_hz[i + 1], centers_hz[i + 2]
+        left = (freqs - f_lo) / max(f_center - f_lo, 1e-9)
+        right = (f_hi - freqs) / max(f_hi - f_center, 1e-9)
+        tri = np.clip(np.minimum(left, right), 0.0, None)
+        filterbank[i] = tri
+
+    return filterbank, centers_hz[1:-1]
+
+
+def to_log_frequency_spectrogram(spectrogram, freqs, num_bins=128, fmin=50.0,
+                                  fmax=None, floor_db=-80.0):
+    """
+    Resample a complex (or linear-magnitude) STFT onto log2-spaced
+    frequency bins, then convert to log-magnitude (dB).
+
+    Use this INSTEAD OF log_magnitude_spectrogram() wherever the result
+    feeds AudioMatcher.extract_keypoints in pitch_invariant mode -- see
+    build_log_freq_filterbank's docstring for why. Both the reference
+    library build and the query-time path must use the same num_bins /
+    fmin / fmax (matching the existing "must be IDENTICAL on both sides"
+    convention already used for REFERENCE_SPEC / STFT_PARAMS elsewhere in
+    this project) or bin indices won't line up between them.
+
+    Returns
+    -------
+    log_spectrogram : ndarray, shape (num_bins, n_time), dB
+    log_freqs : ndarray, shape (num_bins,) -- the center frequency (Hz)
+        of each output row, for reference/debugging.
+    """
+    magnitude = np.abs(spectrogram)
+    filterbank, log_freqs = build_log_freq_filterbank(freqs, num_bins, fmin, fmax)
+    log_magnitude = filterbank @ magnitude  # (num_bins, n_time)
+    log_magnitude = np.maximum(log_magnitude, 1e-10)
+    db = 20 * np.log10(log_magnitude)
+    return np.maximum(db, floor_db), log_freqs
+
+
 def _make_window(window_type, length):
     if window_type == "hann":
         return np.hanning(length)

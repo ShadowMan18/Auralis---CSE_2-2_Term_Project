@@ -1,8 +1,10 @@
 import api from './ApiService.ts';
 
 interface UploadSampleResponse {
-    species: string[],
-    confidence: number[]
+    species: string[];
+    confidence: number[];
+    decision?: string | null;
+    geo_prior_applied?: boolean;
 }
 
 export async function uploadSample(uploadFormData: FormData): Promise<UploadSampleResponse> {

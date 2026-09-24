@@ -12,6 +12,17 @@ build-and-save-a-.pkl step. This is built ONCE per process (cached in
 _matcher below), not per request; rebuilding from raw audio on every
 upload would be far too slow.
 
+CHANGE FROM THE ORIGINAL VERSION: every parameter that has to match
+build_reference_library.py (spec, bandpass, STFT, log-frequency mapping,
+matcher fingerprint settings, keypoint-extraction settings) now comes
+from pipeline_config.py instead of being redefined here -- the two
+files drifting apart silently produces garbage scores, which is exactly
+what was starting to happen (build_reference_library.py wasn't even
+using the same spectrogram representation as this file). Query-time
+windows are also built through the same per-species reference
+augmentation-aware matcher (pitch_invariant + time_bucket hashing,
+adaptive per-row noise floor).
+
 NOTE on imports below: your bandpass.py currently imports via
 `from processor.audio_processing.resample import Resample`
 while routes.py imports via `from processor.services import processor`.
@@ -25,15 +36,50 @@ import logging
 import os
 from pathlib import Path
 
-from processor.audio_processing.audio_processing import (
-    AudioPreprocessor,
-    ConsumerSpec,
-)
+import librosa
+
+from processor.audio_processing.audio_processing import AudioPreprocessor
 from processor.audio_processing.bandpass import apply_bandpass
-from processor.audio_processing.stft import stft, log_magnitude_spectrogram
+from processor.audio_processing.stft import stft, to_log_frequency_spectrogram
 from processor.audio_processing.audio_matcher import AudioMatcher
+from processor.audio_processing import pipeline_config as cfg
 
 logger = logging.getLogger(__name__)
+
+
+def _augmented_waveforms(waveform, sample_rate):
+    """Same augmentation grid as build_reference_library.py -- see that
+    file's docstring for why references get several pitch/tempo variants
+    instead of one. Duplicated here (rather than imported) only because
+    this module can't cleanly import a sibling top-level script; if you
+    promote build_reference_library.py's version to a shared module,
+    replace this copy with an import from there instead."""
+    for n_steps in cfg.PITCH_AUGMENT_STEPS:
+        for rate in cfg.TEMPO_AUGMENT_RATES:
+            if n_steps == 0.0 and rate == 1.0:
+                yield "orig", waveform.astype("float32")
+                continue
+            try:
+                y = waveform
+                label = "orig"
+                if n_steps != 0.0:
+                    try:
+                        y = librosa.effects.pitch_shift(y=y, sr=sample_rate, n_steps=n_steps)
+                    except TypeError:
+                        y = librosa.effects.pitch_shift(y, sample_rate, n_steps)
+                    label = f"pitch{n_steps:+.0f}"
+                if rate != 1.0:
+                    try:
+                        y = librosa.effects.time_stretch(y=y, rate=rate)
+                    except TypeError:
+                        y = librosa.effects.time_stretch(y, rate)
+                    label = f"{label}_rate{rate:.2f}"
+                yield label, y.astype("float32")
+            except Exception as exc:
+                logger.warning(
+                    "Skipping augmentation variant (pitch=%+.1f, rate=%.2f): %s",
+                    n_steps, rate, exc,
+                )
 
 # --- Configuration -------------------------------------------------------
 
@@ -44,30 +90,16 @@ REFERENCES_DIR = os.environ.get(
     str(Path(__file__).resolve().parent.parent / "audio_processing" / "samples" / "references"),
 )
 
-# Must exactly match whatever's used for the query spectrograms below --
-# a mismatch here doesn't error, it just silently produces garbage scores
-# (the whole hash scheme depends on identical freq-bin/time-bin mapping).
-REFERENCE_SPEC = ConsumerSpec(
-    target_sample_rate=22050,
-    target_channels=1,
-    target_duration=None,  # whole clip, no windowing -- one reference call = one unit
-)
-QUERY_SPEC = ConsumerSpec(
-    target_sample_rate=22050,
-    target_channels=1,
-    target_duration=3.0,
-    hop_duration=1.5,
-    amplitude_range=(-1.0, 1.0),
-)
-BANDPASS_PARAMS = dict(low_cutoff_hz=50.0, high_cutoff_hz=10000.0, transition_bandwidth_hz=200.0)
-STFT_PARAMS = dict(window_length_sec=0.046, hop_length_sec=0.012, window_type="hann")
-
-# Below this, a species is not reported -- still a placeholder. Given the
-# noise-sensitivity we measured earlier (clean self-match ~0.8, noisy
-# mixture ~0.04-0.08), 0.15 may be rejecting real detections on noisy
-# input -- validate against real score distributions once you have some,
-# rather than trusting this number as-is.
-CONFIDENCE_THRESHOLD = 0.15
+# Kept as module-level names (imported from pipeline_config) so existing
+# callers/tests that referenced processor.REFERENCE_SPEC etc. still work.
+REFERENCE_SPEC = cfg.REFERENCE_SPEC
+QUERY_SPEC = cfg.QUERY_SPEC
+BANDPASS_PARAMS = cfg.BANDPASS_PARAMS
+STFT_PARAMS = cfg.STFT_PARAMS
+LOG_FREQ_PARAMS = cfg.LOG_FREQ_PARAMS
+EXTRACT_PARAMS = cfg.EXTRACT_PARAMS
+MATCHER_PARAMS = cfg.MATCHER_PARAMS
+CONFIDENCE_THRESHOLD = cfg.CONFIDENCE_THRESHOLD
 
 
 # --- Reference library: build once from the references folder, reuse -----
@@ -77,8 +109,11 @@ _matcher = None
 
 def _compute_log_spectrogram(waveform, sample_rate):
     filtered = apply_bandpass(waveform, sample_rate, **BANDPASS_PARAMS)
-    spectrogram_complex, _freqs, _times = stft(filtered, sample_rate, **STFT_PARAMS)
-    return log_magnitude_spectrogram(spectrogram_complex)
+    spectrogram_complex, freqs, _times = stft(filtered, sample_rate, **STFT_PARAMS)
+    log_spectrogram, _log_freqs = to_log_frequency_spectrogram(
+        spectrogram_complex, freqs, **LOG_FREQ_PARAMS
+    )
+    return log_spectrogram
 
 
 def _build_matcher_from_references():
@@ -94,22 +129,27 @@ def _build_matcher_from_references():
         raise FileNotFoundError(f"No reference audio files found in {references_dir}")
 
     preprocessor = AudioPreprocessor()
-    matcher = AudioMatcher()
+    matcher = AudioMatcher(**MATCHER_PARAMS)
+    sample_rate = REFERENCE_SPEC.target_sample_rate
 
     for path in reference_files:
         species_id = path.stem  # "cat.mp3" -> "cat"
         with open(path, "rb") as file_obj:
             windows = preprocessor.process(file_obj, REFERENCE_SPEC)
-        waveform = windows[0]  # target_duration=None -> exactly one, whole-clip window
-        spectrogram = _compute_log_spectrogram(waveform, REFERENCE_SPEC.target_sample_rate)
-        matcher.add_reference(species_id, spectrogram)
-        logger.info("Added reference '%s' from %s", species_id, path.name)
+        base_waveform = windows[0]  # target_duration=None -> exactly one, whole-clip window
 
-        if matcher.reference_hash_counts.get(species_id, 0) == 0:
-            logger.warning(
-                "'%s' produced ZERO fingerprint hashes -- likely too quiet/short "
-                "for the current extract_keypoints settings.", species_id
-            )
+        n_variants = 0
+        for label, waveform in _augmented_waveforms(base_waveform, sample_rate):
+            spectrogram = _compute_log_spectrogram(waveform, sample_rate)
+            variant_ref_id = f"{species_id}{cfg.VARIANT_SEPARATOR}{label}"
+            matcher.add_reference(variant_ref_id, spectrogram, **EXTRACT_PARAMS)
+            n_variants += 1
+            if matcher.reference_hash_counts.get(variant_ref_id, 0) == 0:
+                logger.warning(
+                    "'%s' produced ZERO fingerprint hashes -- likely too quiet/short "
+                    "for the current extract_keypoints settings.", variant_ref_id
+                )
+        logger.info("Added reference '%s' from %s (%d variants)", species_id, path.name, n_variants)
 
     return matcher
 
@@ -117,7 +157,17 @@ def _build_matcher_from_references():
 def _get_matcher():
     """Lazily build the AudioMatcher from the references folder, once per
     process. Rebuilding on every request would be far too slow -- this
-    caches the result in-memory after the first call."""
+    caches the result in-memory after the first call.
+
+    NOTE: this rebuilds the augmented library from raw audio on process
+    start, same augmentation grid as build_reference_library.py. If you'd
+    rather not pay that cost per-process, point
+    AURALIS_REFERENCE_LIBRARY_PATH at build_reference_library.py's saved
+    .pkl and load it via AudioMatcher.load() instead -- just make sure
+    that .pkl was built with the same pipeline_config.py this process is
+    running, since a stale .pkl built under old settings will silently
+    produce garbage scores (see pipeline_config.py's module docstring).
+    """
     global _matcher
     if _matcher is None:
         logger.info("Building reference library from %s", REFERENCES_DIR)
@@ -134,7 +184,10 @@ def _detect_in_windows(matcher, windows, sample_rate):
     best_scores = {}
     for window in windows:
         spectrogram = _compute_log_spectrogram(window, sample_rate)
-        for species, info in matcher.detect(spectrogram):
+        detections = matcher.detect(
+            spectrogram, variant_separator=cfg.VARIANT_SEPARATOR, **EXTRACT_PARAMS
+        )
+        for species, info in detections:
             if species not in best_scores or info["score"] > best_scores[species]:
                 best_scores[species] = info["score"]
     return best_scores
