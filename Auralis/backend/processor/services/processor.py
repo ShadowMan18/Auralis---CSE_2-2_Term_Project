@@ -22,6 +22,14 @@ the other audio_processing modules. This file's own whole-clip QUERY_SPEC
 (target_duration=None, hop_duration=None) and CONFIDENCE_THRESHOLD=0.0
 are preserved as-is from your current deployed version.
 
+CNN PATH (process_cnn_sample): runs your own phase-1 CNN (train_cnn.py ->
+species_cnn_phase1.pt, trained by dataset_producer.py on the references
+folder). The upload is cut into overlapping 3 s windows -- the length the
+CNN was trained on -- every window goes through the SAME feature code used in
+training (train_cnn.waveform_to_logmel), and each species keeps its best
+window probability, exactly like the DSP path's per-window aggregation. That
+is what lets one upload contain several animals at different times.
+
 NOTE on imports below: your bandpass.py currently imports via
 `from processor.audio_processing.resample import Resample`
 while routes.py imports via `from processor.services import processor`.
@@ -34,15 +42,18 @@ correct simultaneously.
 import logging
 import os
 import tempfile
+import threading
 from pathlib import Path
 
 import librosa
+import numpy as np
 
 from processor.audio_processing.audio_processing import AudioPreprocessor
 from processor.audio_processing.bandpass import apply_bandpass
 from processor.audio_processing.stft import stft, to_log_frequency_spectrogram
 from processor.audio_processing.audio_matcher import AudioMatcher
 from processor.audio_processing import pipeline_config as cfg
+from processor.audio_processing import ml_config as ml_cfg
 
 logger = logging.getLogger(__name__)
 
@@ -66,15 +77,22 @@ EXTRACT_PARAMS = cfg.EXTRACT_PARAMS
 MATCHER_PARAMS = cfg.MATCHER_PARAMS
 CONFIDENCE_THRESHOLD = cfg.CONFIDENCE_THRESHOLD
 
-# The old fingerprint matcher below remains available for experimentation,
-# but the API route uses this CNN path. Keeping the checkpoint outside git is
-# intentional: model artifacts are large and must be built from the licensed
-# iNatSounds data locally.
-CNN_MODEL_PATH = Path(os.environ.get(
-    "AURALIS_CNN_MODEL_PATH",
-    str(Path(__file__).resolve().parent.parent / "audio_processing" / "species_cnn_v2.pt"),
-))
-CNN_GEO_PRIOR_PATH = os.environ.get("AURALIS_GEO_PRIOR_JSON")
+# --- CNN path configuration -------------------------------------------------
+# The fingerprint matcher below remains available for experimentation; the API
+# route uses the CNN path (process_cnn_sample). The checkpoint is built locally
+# from your own references (dataset_producer.py, then train_cnn.py) and kept
+# out of git: model files are build artifacts, not source. Set
+# AURALIS_CNN_MODEL_PATH to use a different checkpoint; its .labels.json must
+# sit next to it.
+CNN_MODEL_PATH = Path(os.environ.get("AURALIS_CNN_MODEL_PATH", str(ml_cfg.MODEL_PATH)))
+# A species is reported when its best window probability reaches this value.
+CNN_MIN_CONFIDENCE = ml_cfg.MIN_CONFIDENCE
+# 3 s windows (ml_cfg.CLIP_SECONDS) advance by this much: 50% overlap so a call
+# that straddles a window boundary is still seen whole in the next window.
+CNN_WINDOW_HOP_SECONDS = 1.5
+# Only the first CNN_MAX_SECONDS of an upload are analysed (bounds memory/CPU).
+CNN_MAX_SECONDS = 120
+CNN_BATCH_SIZE = 64
 
 
 def _augmented_waveforms(waveform, sample_rate, species_id="?"):
@@ -266,87 +284,157 @@ def process_sample(sample):
     }, 200
 
 
-def _optional_geo_prior():
-    """Load the project's explicit region/season table only when configured."""
-    if not CNN_GEO_PRIOR_PATH:
-        return None
-    from processor.audio_processing import geo_prior
-    path = Path(CNN_GEO_PRIOR_PATH)
-    if not path.is_file():
-        raise FileNotFoundError(f"Configured geo-prior JSON was not found: {path}")
-    return geo_prior.JsonGeoPrior(path)
+# --- CNN path ----------------------------------------------------------------
+
+_cnn = None
+_cnn_lock = threading.Lock()
 
 
-def _parse_geo_inputs(lat, lon, month):
-    """Return validated floats/integers, allowing all three to be omitted."""
-    supplied = [value is not None and str(value).strip() != "" for value in (lat, lon, month)]
-    if any(supplied) and not all(supplied):
-        raise ValueError("Provide latitude, longitude, and month together, or omit all three.")
-    if not any(supplied):
-        return None, None, None
-    lat, lon, month = float(lat), float(lon), int(month)
-    if not -90 <= lat <= 90 or not -180 <= lon <= 180 or not 1 <= month <= 12:
-        raise ValueError("latitude must be -90..90, longitude -180..180, and month 1..12.")
-    return lat, lon, month
+def _get_cnn():
+    """Load the CNN once per process and reuse it (same idea as _get_matcher).
+
+    torch is imported lazily here so the DSP path keeps working on a machine
+    without torch. Like the matcher, this is cached for the life of the
+    process: after training a new checkpoint, RESTART the server to pick it up.
+    """
+    global _cnn
+    if _cnn is None:
+        with _cnn_lock:
+            if _cnn is None:
+                from processor.audio_processing.predict import load_model
+                logger.info("Loading CNN from %s", CNN_MODEL_PATH)
+                model, idx_to_class = load_model(CNN_MODEL_PATH)
+                logger.info("CNN loaded: %d classes %s", len(idx_to_class), sorted(idx_to_class.values()))
+                _cnn = (model, idx_to_class)
+    return _cnn
+
+
+def _cnn_window_starts(n_samples):
+    """Start offsets (in samples) of the overlapping CNN windows."""
+    window = int(ml_cfg.CLIP_SECONDS * ml_cfg.SAMPLE_RATE)
+    hop = max(1, int(CNN_WINDOW_HOP_SECONDS * ml_cfg.SAMPLE_RATE))
+    if n_samples <= window:
+        return [0]  # short clip: one window, zero-padded exactly as in training
+    starts = list(range(0, n_samples - window + 1, hop))
+    if starts[-1] + window < n_samples:
+        starts.append(n_samples - window)  # keep the tail instead of dropping it
+    return starts
+
+
+def _cnn_window_probs(model, waveform):
+    """Softmax probabilities, shape (n_windows, n_classes)."""
+    import torch
+    import torch.nn.functional as F
+    from processor.audio_processing.train_cnn import waveform_to_logmel
+
+    window = int(ml_cfg.CLIP_SECONDS * ml_cfg.SAMPLE_RATE)
+    logmels = np.stack([
+        waveform_to_logmel(waveform[start:start + window])
+        for start in _cnn_window_starts(len(waveform))
+    ])
+    x = torch.from_numpy(logmels).unsqueeze(1)  # (n_windows, 1, n_mels, n_frames)
+    batches = []
+    with torch.inference_mode():
+        for i in range(0, len(x), CNN_BATCH_SIZE):
+            batches.append(F.softmax(model(x[i:i + CNN_BATCH_SIZE]), dim=1))
+    return torch.cat(batches).numpy()
+
+
+def _aggregate_cnn_scores(probs, idx_to_class):
+    """Best probability per species across windows -> {species: score}.
+
+    Same rule as predict.py: a window whose winning class is the background
+    class is "no detection" and contributes nothing, so silence/noise windows
+    can't leak small species scores into the result.
+    """
+    labels = [idx_to_class[i] for i in range(probs.shape[1])]
+    species_cols = [i for i, name in enumerate(labels) if name != ml_cfg.BACKGROUND_LABEL]
+    background_cols = [i for i, name in enumerate(labels) if name == ml_cfg.BACKGROUND_LABEL]
+    if not species_cols:
+        return {}
+    keep = ~np.isin(probs.argmax(axis=1), background_cols)
+    if not keep.any():
+        return {}
+    best = probs[keep][:, species_cols].max(axis=0)
+    return {labels[col]: float(score) for col, score in zip(species_cols, best)}
 
 
 def process_cnn_sample(sample, lat=None, lon=None, month=None, top_k=8):
-    """Run the trained species CNN and return ranked species predictions.
+    """Run the trained phase-1 CNN over an uploaded audio file.
 
-    Form fields: ``sample`` plus optional ``lat``/``lon``/``month``. The
-    latter three activate a configured JSON geo-prior, never change the CNN
-    training labels, and are therefore safe to omit until the lookup table
-    has been prepared.
+    Parameters
+    ----------
+    sample : werkzeug FileStorage or None -- the 'sample' multipart field.
+    lat, lon, month : accepted and ignored. The geo-temporal prior belonged to
+        the removed iNatSounds pipeline; the parameters stay so the existing
+        route and frontend keep working unchanged.
+    top_k : maximum number of species to return (1..50).
+
+    Returns (dict, int) -- the (result, status) contract the route expects.
+    ``species``/``confidence`` list only species whose best window reached
+    CNN_MIN_CONFIDENCE (same meaning as the DSP path's threshold); ``decision``
+    is the strongest of them, or None for "no confident detection".
     """
     if sample is None or not sample.filename:
         return {"error": "No file uploaded. Expected a 'sample' field in multipart/form-data."}, 400
     extension = Path(sample.filename).suffix.lower()
     if extension not in ALLOWED_EXTENSIONS:
         return {"error": f"Unsupported file type '{extension}'. Allowed: {sorted(ALLOWED_EXTENSIONS)}"}, 415
+    try:
+        top_k = max(1, min(int(top_k), 50))
+    except (TypeError, ValueError):
+        return {"error": "top_k must be an integer."}, 400
+
     if not CNN_MODEL_PATH.is_file() or not CNN_MODEL_PATH.with_suffix(".labels.json").is_file():
-        return {
-            "error": "CNN model is not ready. Complete the iNatSounds download, manifest, and training steps first."
-        }, 503
+        logger.error("CNN checkpoint or labels file missing at %s", CNN_MODEL_PATH)
+        return {"error": "CNN model is not ready. Train it first (dataset_producer.py, then train_cnn.py)."}, 503
+    try:
+        model, idx_to_class = _get_cnn()
+    except Exception:
+        logger.exception("Could not load the CNN model from %s", CNN_MODEL_PATH)
+        return {"error": "CNN prediction service is not configured correctly."}, 503
 
     try:
-        lat, lon, month = _parse_geo_inputs(lat, lon, month)
-        top_k = max(1, min(int(top_k), 50))
-        geo = _optional_geo_prior()
-        if any(value is not None for value in (lat, lon, month)) and geo is None:
-            logger.warning("Location/date supplied but AURALIS_GEO_PRIOR_JSON is not configured; using CNN-only scores.")
-
-        # librosa/predict_v2 need a filesystem path. NamedTemporaryFile is
-        # closed before Windows reopens it, then always removed afterwards.
+        # librosa needs a filesystem path for every format (mp3/m4a included).
+        # NamedTemporaryFile is closed before librosa reopens it (required on
+        # Windows) and the file is always removed afterwards.
         temp_path = None
         try:
             with tempfile.NamedTemporaryFile(suffix=extension, delete=False) as temp:
                 temp_path = Path(temp.name)
                 sample.save(temp)
-            from processor.audio_processing import predict_v2
-            decision, ranked = predict_v2.predict(
-                temp_path, CNN_MODEL_PATH, lat=lat, lon=lon, month=month, geo_prior_obj=geo
+            waveform, _sr = librosa.load(
+                str(temp_path), sr=ml_cfg.SAMPLE_RATE, mono=True, duration=CNN_MAX_SECONDS
             )
         finally:
             if temp_path is not None:
                 temp_path.unlink(missing_ok=True)
-    except ValueError as exc:
-        return {"error": str(exc)}, 400
-    except FileNotFoundError as exc:
-        logger.error("CNN prediction configuration error: %s", exc)
-        return {"error": "CNN prediction service is not configured correctly."}, 503
+
+        if waveform.size == 0:
+            return {"error": "The uploaded audio file contains no audio."}, 422
+        if waveform.size >= CNN_MAX_SECONDS * ml_cfg.SAMPLE_RATE:
+            logger.warning("'%s' is longer than %ds; only the first %ds were analysed.",
+                           sample.filename, CNN_MAX_SECONDS, CNN_MAX_SECONDS)
+
+        probs = _cnn_window_probs(model, waveform)
+        best_scores = _aggregate_cnn_scores(probs, idx_to_class)
+        logger.info("CNN scores (pre-threshold, %d windows) for '%s': %s",
+                    len(probs), sample.filename,
+                    {k: round(v, 4) for k, v in best_scores.items()})
     except Exception:
         logger.exception("CNN prediction failed for '%s'", sample.filename)
         return {"error": "Failed to process the uploaded audio file."}, 422
 
-    predictions = [
-        {"species": label, "confidence": round(float(confidence), 6)}
-        for label, confidence in ranked[:top_k]
-    ]
+    detected = sorted(
+        ((species, score) for species, score in best_scores.items() if score >= CNN_MIN_CONFIDENCE),
+        key=lambda pair: pair[1], reverse=True,
+    )[:top_k]
+    predictions = [{"species": species, "confidence": round(score, 6)} for species, score in detected]
     return {
-        "decision": predictions[0]["species"] if decision and predictions else None,
+        "decision": predictions[0]["species"] if predictions else None,
         "predictions": predictions,
-        # Retain the prior response shape for the existing frontend client.
+        # Same flat lists as the DSP path / previous CNN response, for the existing frontend.
         "species": [item["species"] for item in predictions],
         "confidence": [item["confidence"] for item in predictions],
-        "geo_prior_applied": geo is not None and lat is not None,
+        "geo_prior_applied": False,
     }, 200

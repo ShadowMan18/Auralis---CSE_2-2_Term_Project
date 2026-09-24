@@ -20,8 +20,12 @@ from pathlib import Path
 import torch
 import torch.nn.functional as F
 
-import ml_config as cfg
-from train_cnn import SmallAudioCNN, compute_logmel
+try:  # imported as part of the processor.audio_processing package (Flask service)
+    from . import ml_config as cfg
+    from .train_cnn import SmallAudioCNN, compute_logmel
+except ImportError:  # run directly as a script from this folder
+    import ml_config as cfg
+    from train_cnn import SmallAudioCNN, compute_logmel
 
 
 def load_model(model_path: Path):
