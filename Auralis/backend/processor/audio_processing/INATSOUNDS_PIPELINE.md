@@ -93,6 +93,13 @@ Google documents that mounted Drive is runtime-dependent and that folders with
 very many files can be slow or fail. That is why the dataset belongs in
 `/content`, while Drive receives only a few model files.
 
+For a species-only run, replace the class-assignment/routing cell above with
+the commands in the species-only section below. Run `!df -h /content` before
+the five-copy generator. The raw routed corpus plus 685k generated copies can
+exceed a free Colab disk. If storage is tight and the routed source does not
+need to be retained, add `--delete-source-after` to the generator command;
+each source is removed only after all its generated output files succeed.
+
 ## 2. Obtain metadata and choose class resolution
 
 ```powershell
@@ -108,6 +115,47 @@ CNN classes. Species with fewer than ten recordings are pooled at genus,
 family, or order level; 71 recordings / 33 species remain zero-shot-only.
 Species labels include the scientific name to prevent duplicate common names
 from merging. Therefore use that exact label in a geo-prior table.
+
+### Species-only mode with five augmented copies per training recording
+
+If your required output is always an individual species rather than a
+genus/family/order group, create a separate species-only assignment file. This
+creates 5,569 species labels, including the 1,951 species represented by only
+one original recording. Five altered copies improve pitch/noise/tempo tolerance
+but do not give those labels five independent animal observations.
+
+```powershell
+python processor/audio_processing/build_taxonomy_classes.py --species-only `
+  --out processor/audio_processing/species_assignments_only.json
+```
+
+Route with that assignment file into a distinct folder named
+`inat_routed_species`. Then make five modified, fixed three-second training
+copies per original recording:
+
+```powershell
+python processor/audio_processing/dataset_generator_v2.py `
+  --routed-dir processor/audio_processing/inat_routed_species `
+  --output-dir processor/audio_processing/inat_augmented_species `
+  --variants-per-file 5
+```
+
+The generator splits by original recording before augmenting, so a source and
+its variants cannot leak into both train and validation. Build the two
+manifests separately afterwards (do not add `--also-split-val`):
+
+```powershell
+python processor/audio_processing/build_window_manifest.py `
+  --routed-dir processor/audio_processing/inat_augmented_species --split train `
+  --out-dir processor/audio_processing/manifests_species
+python processor/audio_processing/build_window_manifest.py `
+  --routed-dir processor/audio_processing/inat_augmented_species --split val `
+  --out-dir processor/audio_processing/manifests_species
+```
+
+The full five-copy corpus is hundreds of GB. First smoke-test the generator
+with `--max-source-files 100`; use Colab `/content` storage only if it has
+enough free space.
 
 Start with mammals before committing to a full run:
 

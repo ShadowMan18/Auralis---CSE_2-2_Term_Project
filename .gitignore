@@ -11,6 +11,7 @@ app.log
 Auralis/backend/processor/audio_processing/inatsounds_downloads/
 Auralis/backend/processor/audio_processing/inat_routed/
 Auralis/backend/processor/audio_processing/manifests/
+Auralis/backend/processor/audio_processing/inat_augmented*/
 Auralis/backend/processor/audio_processing/species_cnn_v2.pt
 Auralis/backend/processor/audio_processing/species_cnn_v2.labels.json
 Auralis/backend/processor/audio_processing/excluded_zero_shot_only.json
