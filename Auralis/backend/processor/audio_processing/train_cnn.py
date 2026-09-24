@@ -32,14 +32,22 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 
-import ml_config as cfg
+try:  # imported as part of the processor.audio_processing package (Flask service)
+    from . import ml_config as cfg
+except ImportError:  # run directly as a script from this folder
+    import ml_config as cfg
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
 
-def compute_logmel(path):
-    y, _sr = librosa.load(str(path), sr=cfg.SAMPLE_RATE, mono=True)
+def waveform_to_logmel(y):
+    """Feature extraction for ONE clip, given a mono float waveform that is
+    already at cfg.SAMPLE_RATE. Padded/cropped to exactly cfg.CLIP_SECONDS.
+
+    Split out of compute_logmel() so the API can run the identical feature
+    code on sliding windows of a longer upload -- training and inference
+    must never use two different copies of this."""
     target_len = int(cfg.CLIP_SECONDS * cfg.SAMPLE_RATE)
     if len(y) < target_len:
         y = np.pad(y, (0, target_len - len(y)))
@@ -58,6 +66,12 @@ def compute_logmel(path):
     # normalize to roughly [-1, 1] -- dB values are typically in [-80, 0]
     logmel = (logmel + 40.0) / 40.0
     return logmel.astype(np.float32)
+
+
+def compute_logmel(path):
+    """Load a file and return the log-mel of its first cfg.CLIP_SECONDS."""
+    y, _sr = librosa.load(str(path), sr=cfg.SAMPLE_RATE, mono=True)
+    return waveform_to_logmel(y)
 
 
 class SpectrogramDataset(Dataset):
