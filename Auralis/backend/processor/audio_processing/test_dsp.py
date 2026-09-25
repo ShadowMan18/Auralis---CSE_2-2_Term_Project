@@ -66,7 +66,8 @@ sys.path.insert(0, str(_find_backend_root(Path(__file__).resolve().parent)))
 from processor.services import processor as detector
 
 SAMPLES_DIR = Path(
-    r"C:\Users\Shadman Sami Shanon\OneDrive\Desktop\Auralis---CSE_2-2_Term_Project\Auralis\backend\processor\audio_processing\samples\test"
+    r"C:\Users\ramis\Documents\2-2\220\Auralis---CSE_2-2_Term_Project\Auralis\backend\processor\audio_processing\samples\test"
+   # r"C:\Users\Shadman Sami Shanon\OneDrive\Desktop\Auralis---CSE_2-2_Term_Project\Auralis\backend\processor\audio_processing\samples\test"
 )
 RESULTS_CACHE = Path(__file__).parent / "test_dsp_results.json"
 ALLOWED_EXTENSIONS = detector.ALLOWED_EXTENSIONS
