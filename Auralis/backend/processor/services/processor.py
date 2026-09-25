@@ -322,21 +322,33 @@ def _cnn_window_starts(n_samples):
 
 
 def _cnn_window_probs(model, waveform):
-    """Softmax probabilities, shape (n_windows, n_classes)."""
+    """Softmax probabilities, shape (n_windows, n_classes).
+
+    Each window is exactly CLIP_SECONDS of the upload EXCEPT possibly the
+    last one, when the upload is shorter than one window; that window gets
+    padded with realistic background noise (train_cnn._pad_with_noise_bed) to
+    reach the model's fixed input size. valid_frames tells the model exactly
+    how many of those columns are real audio, so it can pool over only the
+    real part -- the padded columns get zero weight in the prediction,
+    whatever they contain. Full-length windows (the normal case) have
+    valid_frames == N_FRAMES, i.e. nothing is masked."""
     import torch
     import torch.nn.functional as F
-    from processor.audio_processing.train_cnn import waveform_to_logmel
+    from processor.audio_processing.train_cnn import waveform_to_logmel_with_length
 
     window = int(ml_cfg.CLIP_SECONDS * ml_cfg.SAMPLE_RATE)
-    logmels = np.stack([
-        waveform_to_logmel(waveform[start:start + window])
-        for start in _cnn_window_starts(len(waveform))
-    ])
-    x = torch.from_numpy(logmels).unsqueeze(1)  # (n_windows, 1, n_mels, n_frames)
+    logmels, valid_frames = [], []
+    for start in _cnn_window_starts(len(waveform)):
+        logmel, n_valid = waveform_to_logmel_with_length(waveform[start:start + window])
+        logmels.append(logmel)
+        valid_frames.append(n_valid)
+    x = torch.from_numpy(np.stack(logmels)).unsqueeze(1)  # (n_windows, 1, n_mels, n_frames)
+    valid_frames = torch.tensor(valid_frames, dtype=torch.long)
     batches = []
     with torch.inference_mode():
         for i in range(0, len(x), CNN_BATCH_SIZE):
-            batches.append(F.softmax(model(x[i:i + CNN_BATCH_SIZE]), dim=1))
+            logits = model(x[i:i + CNN_BATCH_SIZE], valid_frames=valid_frames[i:i + CNN_BATCH_SIZE])
+            batches.append(F.softmax(logits, dim=1))
     return torch.cat(batches).numpy()
 
 
