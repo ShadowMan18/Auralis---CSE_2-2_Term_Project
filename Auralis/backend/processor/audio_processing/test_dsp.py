@@ -93,16 +93,19 @@ class LocalFile:
 
 
 def guess_true_label(filename: str) -> str:
-    """Best-effort expected species from the filename, assuming the same
-    '<species_id>...' convention used for reference files (see
-    _build_matcher_from_references: species_id = path.stem). Only used
-    to color-code the chart (correct/incorrect top-1), not for scoring --
-    edit the separator list if your test files are named differently."""
+    """Infer a single-species label from the test filename.
+
+    Test clips use names such as ``sample_cat2`` while references use
+    ``cat_002``. A mixed-species clip has no single top-1 ground-truth
+    label, so return None for it and leave it out of correctness coloring.
+    """
     stem = Path(filename).stem
-    for sep in ("_", "-", " "):
-        if sep in stem:
-            return stem.split(sep)[0]
-    return stem
+    known_species = {
+        "cat", "cow", "crow", "dog", "goat", "horse", "monkey", "rooster"
+    }
+    tokens = stem.lower().replace("-", "_").replace(" ", "_").split("_")
+    labels = [token for token in tokens if token in known_species]
+    return labels[0] if len(labels) == 1 else None
 
 
 def run_inference():
@@ -169,13 +172,14 @@ def plot_results(results, threshold=None):
         if preds:
             top_conf.append(preds[0]["confidence"])
             top_species.append(preds[0]["species"])
-            correct.append(preds[0]["species"] == r["true_label"])
+            label = r.get("true_label")
+            correct.append(None if label is None else preds[0]["species"].split("_")[0] == label)
         else:
             top_conf.append(0.0)
             top_species.append("(no detection)")
             correct.append(False)
 
-    colors = ["#2ca02c" if c else "#d62728" for c in correct]
+    colors = ["#2ca02c" if c is True else "#d62728" if c is False else "#7f7f7f" for c in correct]
 
     fig, ax = plt.subplots(figsize=(max(8, len(files) * 0.5), 6))
     bars = ax.bar(range(len(files)), top_conf, color=colors)

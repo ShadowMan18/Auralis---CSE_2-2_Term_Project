@@ -1,464 +1,1992 @@
 [
   {
     "file": "multi_sample_nonintersecting.wav",
-    "true_label": "multi",
+    "true_label": null,
     "error": null,
     "predictions": [
       {
-        "species": "cat",
-        "confidence": 0.8571
+        "species": "cat_001",
+        "confidence": 0.5
       },
       {
-        "species": "cow",
-        "confidence": 0.32
+        "species": "goat_001",
+        "confidence": 0.3571
       },
       {
-        "species": "dog",
-        "confidence": 0.2
+        "species": "rooster_005",
+        "confidence": 0.1667
       },
       {
-        "species": "goat",
-        "confidence": 0.14
+        "species": "cow_001",
+        "confidence": 0.1667
       },
       {
-        "species": "crow",
-        "confidence": 0.0278
+        "species": "goat_002",
+        "confidence": 0.0811
       },
       {
-        "species": "horse",
-        "confidence": 0.0154
+        "species": "cow_004",
+        "confidence": 0.0667
       },
       {
-        "species": "rooster",
-        "confidence": 0.0119
+        "species": "crow_004",
+        "confidence": 0.0667
       },
       {
-        "species": "monkey",
-        "confidence": 0.0108
+        "species": "cat_005",
+        "confidence": 0.0526
+      },
+      {
+        "species": "horse_004",
+        "confidence": 0.0517
+      },
+      {
+        "species": "cow_003",
+        "confidence": 0.05
+      },
+      {
+        "species": "crow_002",
+        "confidence": 0.05
+      },
+      {
+        "species": "cat_004",
+        "confidence": 0.05
+      },
+      {
+        "species": "dog_003",
+        "confidence": 0.0417
+      },
+      {
+        "species": "crow_003",
+        "confidence": 0.0408
+      },
+      {
+        "species": "cat_002",
+        "confidence": 0.04
+      },
+      {
+        "species": "dog_005",
+        "confidence": 0.037
+      },
+      {
+        "species": "horse_001",
+        "confidence": 0.0308
+      },
+      {
+        "species": "rooster_002",
+        "confidence": 0.0235
+      },
+      {
+        "species": "horse_003",
+        "confidence": 0.02
+      },
+      {
+        "species": "rooster_001",
+        "confidence": 0.0182
+      },
+      {
+        "species": "rooster_003",
+        "confidence": 0.0182
+      },
+      {
+        "species": "goat_004",
+        "confidence": 0.0175
+      },
+      {
+        "species": "goat_005",
+        "confidence": 0.0169
+      },
+      {
+        "species": "cat_003",
+        "confidence": 0.0129
+      },
+      {
+        "species": "dog_004",
+        "confidence": 0.0124
+      },
+      {
+        "species": "rooster_004",
+        "confidence": 0.0115
+      },
+      {
+        "species": "monkey_001",
+        "confidence": 0.0114
+      },
+      {
+        "species": "monkey_004",
+        "confidence": 0.0114
+      },
+      {
+        "species": "horse_005",
+        "confidence": 0.0104
+      },
+      {
+        "species": "monkey_005",
+        "confidence": 0.0101
+      },
+      {
+        "species": "horse_002",
+        "confidence": 0.0098
+      },
+      {
+        "species": "crow_005",
+        "confidence": 0.0097
+      },
+      {
+        "species": "cow_002",
+        "confidence": 0.0088
+      },
+      {
+        "species": "goat_003",
+        "confidence": 0.0085
+      },
+      {
+        "species": "cow_005",
+        "confidence": 0.0083
+      },
+      {
+        "species": "monkey_003",
+        "confidence": 0.0082
+      },
+      {
+        "species": "monkey_002",
+        "confidence": 0.007
+      },
+      {
+        "species": "dog_002",
+        "confidence": 0.0049
       }
     ]
   },
   {
     "file": "sample_cat2.mp3",
-    "true_label": "sample",
+    "true_label": null,
     "error": null,
     "predictions": [
       {
-        "species": "cow",
+        "species": "cat_002",
+        "confidence": 0.25
+      },
+      {
+        "species": "cow_001",
+        "confidence": 0.1
+      },
+      {
+        "species": "rooster_005",
+        "confidence": 0.0769
+      },
+      {
+        "species": "cow_004",
+        "confidence": 0.0526
+      },
+      {
+        "species": "cat_005",
+        "confidence": 0.0476
+      },
+      {
+        "species": "cow_003",
+        "confidence": 0.0444
+      },
+      {
+        "species": "dog_003",
         "confidence": 0.0417
       },
       {
-        "species": "cat",
+        "species": "cat_001",
         "confidence": 0.04
       },
       {
-        "species": "rooster",
-        "confidence": 0.0238
+        "species": "crow_002",
+        "confidence": 0.0345
       },
       {
-        "species": "goat",
+        "species": "cat_004",
+        "confidence": 0.0345
+      },
+      {
+        "species": "dog_005",
+        "confidence": 0.0303
+      },
+      {
+        "species": "crow_003",
+        "confidence": 0.0294
+      },
+      {
+        "species": "goat_002",
+        "confidence": 0.0286
+      },
+      {
+        "species": "goat_001",
+        "confidence": 0.0256
+      },
+      {
+        "species": "crow_004",
+        "confidence": 0.0222
+      },
+      {
+        "species": "horse_004",
+        "confidence": 0.0213
+      },
+      {
+        "species": "horse_003",
         "confidence": 0.02
       },
       {
-        "species": "horse",
-        "confidence": 0.013
+        "species": "rooster_003",
+        "confidence": 0.0182
       },
       {
-        "species": "monkey",
-        "confidence": 0.0108
+        "species": "rooster_001",
+        "confidence": 0.0182
       },
       {
-        "species": "crow",
-        "confidence": 0.0095
+        "species": "rooster_002",
+        "confidence": 0.0167
+      },
+      {
+        "species": "horse_001",
+        "confidence": 0.0154
+      },
+      {
+        "species": "goat_005",
+        "confidence": 0.0127
+      },
+      {
+        "species": "goat_003",
+        "confidence": 0.0123
+      },
+      {
+        "species": "goat_004",
+        "confidence": 0.0117
+      },
+      {
+        "species": "monkey_001",
+        "confidence": 0.0114
+      },
+      {
+        "species": "monkey_004",
+        "confidence": 0.0114
+      },
+      {
+        "species": "monkey_005",
+        "confidence": 0.0101
+      },
+      {
+        "species": "cow_002",
+        "confidence": 0.0091
+      },
+      {
+        "species": "monkey_003",
+        "confidence": 0.0085
+      },
+      {
+        "species": "rooster_004",
+        "confidence": 0.0085
+      },
+      {
+        "species": "dog_004",
+        "confidence": 0.0084
+      },
+      {
+        "species": "horse_002",
+        "confidence": 0.0076
+      },
+      {
+        "species": "dog_002",
+        "confidence": 0.0072
+      },
+      {
+        "species": "horse_005",
+        "confidence": 0.0068
+      },
+      {
+        "species": "cow_005",
+        "confidence": 0.0062
+      },
+      {
+        "species": "crow_005",
+        "confidence": 0.0053
+      },
+      {
+        "species": "cat_003",
+        "confidence": 0.0048
+      },
+      {
+        "species": "monkey_002",
+        "confidence": 0.0035
       }
     ]
   },
   {
     "file": "sample_cat3.mp3",
-    "true_label": "sample",
+    "true_label": null,
     "error": null,
     "predictions": [
       {
-        "species": "dog",
-        "confidence": 0.25
+        "species": "cat_003",
+        "confidence": 0.724
       },
       {
-        "species": "cow",
+        "species": "rooster_005",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow_001",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cat_004",
+        "confidence": 0.15
+      },
+      {
+        "species": "horse_004",
+        "confidence": 0.08
+      },
+      {
+        "species": "cow_004",
+        "confidence": 0.0667
+      },
+      {
+        "species": "cat_005",
+        "confidence": 0.06
+      },
+      {
+        "species": "crow_003",
+        "confidence": 0.0588
+      },
+      {
+        "species": "goat_002",
+        "confidence": 0.0541
+      },
+      {
+        "species": "cow_003",
         "confidence": 0.05
       },
       {
-        "species": "cat",
-        "confidence": 0.0444
+        "species": "crow_004",
+        "confidence": 0.05
       },
       {
-        "species": "rooster",
-        "confidence": 0.0319
+        "species": "goat_001",
+        "confidence": 0.04
       },
       {
-        "species": "goat",
-        "confidence": 0.02
+        "species": "horse_003",
+        "confidence": 0.04
       },
       {
-        "species": "monkey",
-        "confidence": 0.0196
+        "species": "cat_002",
+        "confidence": 0.04
       },
       {
-        "species": "horse",
-        "confidence": 0.0183
+        "species": "dog_003",
+        "confidence": 0.04
       },
       {
-        "species": "crow",
-        "confidence": 0.016
+        "species": "cat_001",
+        "confidence": 0.04
+      },
+      {
+        "species": "crow_002",
+        "confidence": 0.037
+      },
+      {
+        "species": "rooster_001",
+        "confidence": 0.0326
+      },
+      {
+        "species": "dog_005",
+        "confidence": 0.0323
+      },
+      {
+        "species": "rooster_002",
+        "confidence": 0.0273
+      },
+      {
+        "species": "rooster_003",
+        "confidence": 0.0253
+      },
+      {
+        "species": "horse_001",
+        "confidence": 0.025
+      },
+      {
+        "species": "goat_004",
+        "confidence": 0.0222
+      },
+      {
+        "species": "monkey_001",
+        "confidence": 0.0215
+      },
+      {
+        "species": "crow_005",
+        "confidence": 0.0158
+      },
+      {
+        "species": "goat_005",
+        "confidence": 0.015
+      },
+      {
+        "species": "goat_003",
+        "confidence": 0.0123
+      },
+      {
+        "species": "monkey_004",
+        "confidence": 0.0114
+      },
+      {
+        "species": "monkey_003",
+        "confidence": 0.0113
+      },
+      {
+        "species": "monkey_005",
+        "confidence": 0.0106
+      },
+      {
+        "species": "horse_005",
+        "confidence": 0.01
+      },
+      {
+        "species": "rooster_004",
+        "confidence": 0.009
+      },
+      {
+        "species": "dog_004",
+        "confidence": 0.0084
+      },
+      {
+        "species": "cow_005",
+        "confidence": 0.0081
+      },
+      {
+        "species": "monkey_002",
+        "confidence": 0.008
+      },
+      {
+        "species": "horse_002",
+        "confidence": 0.0077
+      },
+      {
+        "species": "cow_002",
+        "confidence": 0.0067
+      },
+      {
+        "species": "dog_002",
+        "confidence": 0.0049
       }
     ]
   },
   {
     "file": "sample_cow2.mp3",
-    "true_label": "sample",
+    "true_label": null,
     "error": null,
     "predictions": [
       {
-        "species": "dog",
-        "confidence": 0.3333
+        "species": "cow_002",
+        "confidence": 0.3297
       },
       {
-        "species": "cat",
+        "species": "rooster_005",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow_001",
+        "confidence": 0.1
+      },
+      {
+        "species": "cat_002",
+        "confidence": 0.0769
+      },
+      {
+        "species": "cat_004",
+        "confidence": 0.069
+      },
+      {
+        "species": "cow_004",
         "confidence": 0.0667
       },
       {
-        "species": "cow",
+        "species": "horse_004",
+        "confidence": 0.0545
+      },
+      {
+        "species": "rooster_003",
+        "confidence": 0.0545
+      },
+      {
+        "species": "cow_003",
         "confidence": 0.05
       },
       {
-        "species": "rooster",
-        "confidence": 0.0222
+        "species": "crow_004",
+        "confidence": 0.05
       },
       {
-        "species": "goat",
-        "confidence": 0.02
+        "species": "goat_001",
+        "confidence": 0.0476
       },
       {
-        "species": "monkey",
-        "confidence": 0.0196
+        "species": "cat_005",
+        "confidence": 0.0476
       },
       {
-        "species": "horse",
-        "confidence": 0.0183
+        "species": "dog_005",
+        "confidence": 0.0455
       },
       {
-        "species": "crow",
-        "confidence": 0.0161
+        "species": "crow_002",
+        "confidence": 0.0417
+      },
+      {
+        "species": "dog_003",
+        "confidence": 0.0417
+      },
+      {
+        "species": "goat_002",
+        "confidence": 0.0417
+      },
+      {
+        "species": "cat_001",
+        "confidence": 0.04
+      },
+      {
+        "species": "horse_003",
+        "confidence": 0.0364
+      },
+      {
+        "species": "rooster_001",
+        "confidence": 0.0364
+      },
+      {
+        "species": "goat_005",
+        "confidence": 0.0339
+      },
+      {
+        "species": "crow_003",
+        "confidence": 0.0294
+      },
+      {
+        "species": "monkey_004",
+        "confidence": 0.0291
+      },
+      {
+        "species": "horse_001",
+        "confidence": 0.0252
+      },
+      {
+        "species": "goat_004",
+        "confidence": 0.0234
+      },
+      {
+        "species": "monkey_001",
+        "confidence": 0.0227
+      },
+      {
+        "species": "rooster_002",
+        "confidence": 0.0167
+      },
+      {
+        "species": "goat_003",
+        "confidence": 0.0159
+      },
+      {
+        "species": "rooster_004",
+        "confidence": 0.0135
+      },
+      {
+        "species": "crow_005",
+        "confidence": 0.0114
+      },
+      {
+        "species": "monkey_005",
+        "confidence": 0.0106
+      },
+      {
+        "species": "monkey_002",
+        "confidence": 0.0093
+      },
+      {
+        "species": "cat_003",
+        "confidence": 0.0093
+      },
+      {
+        "species": "cow_005",
+        "confidence": 0.0092
+      },
+      {
+        "species": "dog_004",
+        "confidence": 0.0085
+      },
+      {
+        "species": "monkey_003",
+        "confidence": 0.0085
+      },
+      {
+        "species": "horse_002",
+        "confidence": 0.008
+      },
+      {
+        "species": "horse_005",
+        "confidence": 0.0069
+      },
+      {
+        "species": "dog_002",
+        "confidence": 0.0049
       }
     ]
   },
   {
     "file": "sample_horse2.mp3",
-    "true_label": "sample",
+    "true_label": null,
     "error": null,
     "predictions": [
       {
-        "species": "dog",
-        "confidence": 0.2
+        "species": "horse_002",
+        "confidence": 0.2784
       },
       {
-        "species": "cow",
-        "confidence": 0.0833
+        "species": "rooster_005",
+        "confidence": 0.1667
       },
       {
-        "species": "cat",
-        "confidence": 0.0444
+        "species": "cat_004",
+        "confidence": 0.1
       },
       {
-        "species": "goat",
+        "species": "cow_001",
+        "confidence": 0.1
+      },
+      {
+        "species": "goat_001",
+        "confidence": 0.069
+      },
+      {
+        "species": "horse_004",
+        "confidence": 0.06
+      },
+      {
+        "species": "goat_002",
+        "confidence": 0.0571
+      },
+      {
+        "species": "crow_002",
+        "confidence": 0.0556
+      },
+      {
+        "species": "cow_004",
+        "confidence": 0.0526
+      },
+      {
+        "species": "cat_005",
+        "confidence": 0.0526
+      },
+      {
+        "species": "horse_001",
+        "confidence": 0.05
+      },
+      {
+        "species": "cow_003",
+        "confidence": 0.05
+      },
+      {
+        "species": "crow_004",
+        "confidence": 0.05
+      },
+      {
+        "species": "dog_005",
+        "confidence": 0.0455
+      },
+      {
+        "species": "dog_003",
+        "confidence": 0.0417
+      },
+      {
+        "species": "cat_002",
         "confidence": 0.04
       },
       {
-        "species": "horse",
-        "confidence": 0.0256
+        "species": "cat_001",
+        "confidence": 0.04
       },
       {
-        "species": "monkey",
-        "confidence": 0.0242
+        "species": "rooster_001",
+        "confidence": 0.0339
       },
       {
-        "species": "rooster",
-        "confidence": 0.0238
+        "species": "crow_003",
+        "confidence": 0.0333
       },
       {
-        "species": "crow",
+        "species": "rooster_003",
+        "confidence": 0.0308
+      },
+      {
+        "species": "horse_003",
+        "confidence": 0.0267
+      },
+      {
+        "species": "rooster_002",
+        "confidence": 0.0235
+      },
+      {
+        "species": "goat_004",
+        "confidence": 0.0222
+      },
+      {
+        "species": "monkey_004",
+        "confidence": 0.0194
+      },
+      {
+        "species": "goat_005",
         "confidence": 0.019
+      },
+      {
+        "species": "monkey_001",
+        "confidence": 0.0165
+      },
+      {
+        "species": "goat_003",
+        "confidence": 0.0165
+      },
+      {
+        "species": "horse_005",
+        "confidence": 0.016
+      },
+      {
+        "species": "rooster_004",
+        "confidence": 0.0148
+      },
+      {
+        "species": "cat_003",
+        "confidence": 0.0145
+      },
+      {
+        "species": "monkey_005",
+        "confidence": 0.0144
+      },
+      {
+        "species": "monkey_003",
+        "confidence": 0.0122
+      },
+      {
+        "species": "cow_005",
+        "confidence": 0.0119
+      },
+      {
+        "species": "cow_002",
+        "confidence": 0.0108
+      },
+      {
+        "species": "crow_005",
+        "confidence": 0.0105
+      },
+      {
+        "species": "monkey_002",
+        "confidence": 0.0099
+      },
+      {
+        "species": "dog_002",
+        "confidence": 0.0098
+      },
+      {
+        "species": "dog_004",
+        "confidence": 0.0084
       }
     ]
   },
   {
     "file": "sample_noised.wav",
-    "true_label": "sample",
+    "true_label": null,
     "error": null,
     "predictions": [
       {
-        "species": "cat",
-        "confidence": 0.0222
+        "species": "goat_001",
+        "confidence": 0.0286
       },
       {
-        "species": "rooster",
-        "confidence": 0.0119
+        "species": "goat_002",
+        "confidence": 0.0286
       },
       {
-        "species": "crow",
-        "confidence": 0.0093
+        "species": "cat_005",
+        "confidence": 0.0256
       },
       {
-        "species": "horse",
-        "confidence": 0.0092
+        "species": "cat_001",
+        "confidence": 0.0227
+      },
+      {
+        "species": "cat_002",
+        "confidence": 0.02
+      },
+      {
+        "species": "rooster_001",
+        "confidence": 0.0143
+      },
+      {
+        "species": "rooster_002",
+        "confidence": 0.0133
+      },
+      {
+        "species": "horse_001",
+        "confidence": 0.0125
+      },
+      {
+        "species": "horse_004",
+        "confidence": 0.0105
+      },
+      {
+        "species": "horse_005",
+        "confidence": 0.0104
+      },
+      {
+        "species": "horse_003",
+        "confidence": 0.01
+      },
+      {
+        "species": "monkey_004",
+        "confidence": 0.008
+      },
+      {
+        "species": "goat_004",
+        "confidence": 0.0074
+      },
+      {
+        "species": "monkey_005",
+        "confidence": 0.0072
+      },
+      {
+        "species": "goat_005",
+        "confidence": 0.0052
+      },
+      {
+        "species": "cat_003",
+        "confidence": 0.0046
+      },
+      {
+        "species": "cow_005",
+        "confidence": 0.0045
+      },
+      {
+        "species": "rooster_004",
+        "confidence": 0.0044
+      },
+      {
+        "species": "goat_003",
+        "confidence": 0.0043
+      },
+      {
+        "species": "monkey_002",
+        "confidence": 0.0035
+      },
+      {
+        "species": "cow_002",
+        "confidence": 0.0033
+      },
+      {
+        "species": "horse_002",
+        "confidence": 0.0029
+      },
+      {
+        "species": "dog_002",
+        "confidence": 0.0023
       }
     ]
   },
   {
     "file": "sample_original.mp3",
-    "true_label": "sample",
+    "true_label": null,
     "error": null,
     "predictions": [
       {
-        "species": "cat",
-        "confidence": 1.0
+        "species": "cat_001",
+        "confidence": 0.5682
       },
       {
-        "species": "cow",
+        "species": "cow_001",
+        "confidence": 0.1
+      },
+      {
+        "species": "cat_005",
+        "confidence": 0.0526
+      },
+      {
+        "species": "cat_004",
         "confidence": 0.05
       },
       {
-        "species": "goat",
+        "species": "crow_002",
+        "confidence": 0.05
+      },
+      {
+        "species": "goat_002",
+        "confidence": 0.0417
+      },
+      {
+        "species": "goat_001",
+        "confidence": 0.04
+      },
+      {
+        "species": "dog_003",
+        "confidence": 0.04
+      },
+      {
+        "species": "cat_002",
+        "confidence": 0.04
+      },
+      {
+        "species": "dog_005",
+        "confidence": 0.0303
+      },
+      {
+        "species": "cow_004",
+        "confidence": 0.0286
+      },
+      {
+        "species": "cow_003",
+        "confidence": 0.0256
+      },
+      {
+        "species": "crow_004",
+        "confidence": 0.0222
+      },
+      {
+        "species": "crow_003",
+        "confidence": 0.0204
+      },
+      {
+        "species": "horse_004",
         "confidence": 0.02
       },
       {
-        "species": "horse",
+        "species": "rooster_001",
+        "confidence": 0.0182
+      },
+      {
+        "species": "rooster_003",
+        "confidence": 0.0182
+      },
+      {
+        "species": "horse_003",
+        "confidence": 0.0182
+      },
+      {
+        "species": "rooster_002",
+        "confidence": 0.0167
+      },
+      {
+        "species": "horse_001",
         "confidence": 0.0154
       },
       {
-        "species": "rooster",
-        "confidence": 0.0119
+        "species": "goat_004",
+        "confidence": 0.0134
       },
       {
-        "species": "monkey",
-        "confidence": 0.0108
+        "species": "monkey_004",
+        "confidence": 0.0114
       },
       {
-        "species": "crow",
+        "species": "goat_005",
+        "confidence": 0.0104
+      },
+      {
+        "species": "monkey_001",
         "confidence": 0.0095
+      },
+      {
+        "species": "goat_003",
+        "confidence": 0.0085
+      },
+      {
+        "species": "rooster_004",
+        "confidence": 0.0085
+      },
+      {
+        "species": "monkey_005",
+        "confidence": 0.0072
+      },
+      {
+        "species": "horse_005",
+        "confidence": 0.0069
+      },
+      {
+        "species": "monkey_003",
+        "confidence": 0.0068
+      },
+      {
+        "species": "cow_002",
+        "confidence": 0.0054
+      },
+      {
+        "species": "monkey_002",
+        "confidence": 0.0053
+      },
+      {
+        "species": "crow_005",
+        "confidence": 0.0053
+      },
+      {
+        "species": "cat_003",
+        "confidence": 0.0048
+      },
+      {
+        "species": "cow_005",
+        "confidence": 0.0045
+      },
+      {
+        "species": "dog_004",
+        "confidence": 0.0043
+      },
+      {
+        "species": "horse_002",
+        "confidence": 0.0029
+      },
+      {
+        "species": "dog_002",
+        "confidence": 0.0025
       }
     ]
   },
   {
     "file": "sample_padded.wav",
-    "true_label": "sample",
+    "true_label": null,
     "error": null,
     "predictions": [
       {
-        "species": "cat",
-        "confidence": 0.7551
+        "species": "cat_001",
+        "confidence": 0.4091
       },
       {
-        "species": "cow",
+        "species": "rooster_005",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow_001",
+        "confidence": 0.1
+      },
+      {
+        "species": "cat_005",
+        "confidence": 0.0526
+      },
+      {
+        "species": "crow_002",
         "confidence": 0.05
       },
       {
-        "species": "goat",
+        "species": "cat_004",
+        "confidence": 0.05
+      },
+      {
+        "species": "dog_005",
+        "confidence": 0.0455
+      },
+      {
+        "species": "dog_003",
+        "confidence": 0.0417
+      },
+      {
+        "species": "goat_002",
+        "confidence": 0.0417
+      },
+      {
+        "species": "goat_001",
+        "confidence": 0.04
+      },
+      {
+        "species": "cat_002",
+        "confidence": 0.04
+      },
+      {
+        "species": "cow_004",
+        "confidence": 0.0333
+      },
+      {
+        "species": "crow_004",
+        "confidence": 0.0303
+      },
+      {
+        "species": "cow_003",
+        "confidence": 0.0256
+      },
+      {
+        "species": "crow_003",
+        "confidence": 0.0204
+      },
+      {
+        "species": "horse_004",
         "confidence": 0.02
       },
       {
-        "species": "horse",
+        "species": "goat_005",
+        "confidence": 0.019
+      },
+      {
+        "species": "rooster_003",
+        "confidence": 0.0182
+      },
+      {
+        "species": "rooster_002",
+        "confidence": 0.0182
+      },
+      {
+        "species": "horse_003",
+        "confidence": 0.0182
+      },
+      {
+        "species": "rooster_001",
+        "confidence": 0.0182
+      },
+      {
+        "species": "horse_001",
         "confidence": 0.0154
       },
       {
-        "species": "rooster",
-        "confidence": 0.0119
+        "species": "goat_004",
+        "confidence": 0.0134
       },
       {
-        "species": "monkey",
-        "confidence": 0.0108
+        "species": "monkey_004",
+        "confidence": 0.0114
       },
       {
-        "species": "crow",
+        "species": "monkey_001",
         "confidence": 0.0095
+      },
+      {
+        "species": "rooster_004",
+        "confidence": 0.009
+      },
+      {
+        "species": "goat_003",
+        "confidence": 0.0085
+      },
+      {
+        "species": "dog_004",
+        "confidence": 0.0083
+      },
+      {
+        "species": "monkey_005",
+        "confidence": 0.0072
+      },
+      {
+        "species": "horse_005",
+        "confidence": 0.0069
+      },
+      {
+        "species": "monkey_003",
+        "confidence": 0.0068
+      },
+      {
+        "species": "cow_002",
+        "confidence": 0.0066
+      },
+      {
+        "species": "monkey_002",
+        "confidence": 0.0063
+      },
+      {
+        "species": "crow_005",
+        "confidence": 0.0053
+      },
+      {
+        "species": "horse_002",
+        "confidence": 0.0052
+      },
+      {
+        "species": "cat_003",
+        "confidence": 0.0048
+      },
+      {
+        "species": "cow_005",
+        "confidence": 0.0045
+      },
+      {
+        "species": "dog_002",
+        "confidence": 0.0025
       }
     ]
   },
   {
     "file": "sample_pitch_decreased.wav",
-    "true_label": "sample",
+    "true_label": null,
     "error": null,
     "predictions": [
       {
-        "species": "cat",
-        "confidence": 0.1224
+        "species": "rooster_005",
+        "confidence": 0.125
       },
       {
-        "species": "cow",
-        "confidence": 0.05
+        "species": "cow_001",
+        "confidence": 0.1
       },
       {
-        "species": "goat",
+        "species": "cat_004",
+        "confidence": 0.0667
+      },
+      {
+        "species": "goat_002",
+        "confidence": 0.0541
+      },
+      {
+        "species": "cat_005",
+        "confidence": 0.0476
+      },
+      {
+        "species": "goat_001",
+        "confidence": 0.0476
+      },
+      {
+        "species": "cat_001",
+        "confidence": 0.04
+      },
+      {
+        "species": "dog_003",
+        "confidence": 0.0345
+      },
+      {
+        "species": "rooster_003",
+        "confidence": 0.0308
+      },
+      {
+        "species": "crow_004",
+        "confidence": 0.0294
+      },
+      {
+        "species": "cow_004",
+        "confidence": 0.0286
+      },
+      {
+        "species": "crow_002",
+        "confidence": 0.0286
+      },
+      {
+        "species": "dog_005",
+        "confidence": 0.027
+      },
+      {
+        "species": "cow_003",
+        "confidence": 0.0256
+      },
+      {
+        "species": "crow_003",
+        "confidence": 0.025
+      },
+      {
+        "species": "cat_002",
+        "confidence": 0.025
+      },
+      {
+        "species": "horse_004",
         "confidence": 0.02
       },
       {
-        "species": "horse",
-        "confidence": 0.0183
+        "species": "horse_003",
+        "confidence": 0.0182
       },
       {
-        "species": "rooster",
-        "confidence": 0.0119
+        "species": "rooster_001",
+        "confidence": 0.0182
       },
       {
-        "species": "monkey",
-        "confidence": 0.0108
+        "species": "rooster_002",
+        "confidence": 0.0167
       },
       {
-        "species": "crow",
+        "species": "horse_001",
+        "confidence": 0.0154
+      },
+      {
+        "species": "goat_005",
+        "confidence": 0.0127
+      },
+      {
+        "species": "goat_004",
+        "confidence": 0.0117
+      },
+      {
+        "species": "monkey_004",
+        "confidence": 0.0114
+      },
+      {
+        "species": "monkey_001",
         "confidence": 0.0095
+      },
+      {
+        "species": "cat_003",
+        "confidence": 0.0086
+      },
+      {
+        "species": "goat_003",
+        "confidence": 0.0085
+      },
+      {
+        "species": "rooster_004",
+        "confidence": 0.0085
+      },
+      {
+        "species": "monkey_005",
+        "confidence": 0.0072
+      },
+      {
+        "species": "horse_005",
+        "confidence": 0.0069
+      },
+      {
+        "species": "monkey_002",
+        "confidence": 0.0062
+      },
+      {
+        "species": "cow_002",
+        "confidence": 0.0059
+      },
+      {
+        "species": "crow_005",
+        "confidence": 0.0053
+      },
+      {
+        "species": "horse_002",
+        "confidence": 0.0052
+      },
+      {
+        "species": "cow_005",
+        "confidence": 0.0045
+      },
+      {
+        "species": "monkey_003",
+        "confidence": 0.0043
+      },
+      {
+        "species": "dog_004",
+        "confidence": 0.0043
+      },
+      {
+        "species": "dog_002",
+        "confidence": 0.0025
       }
     ]
   },
   {
     "file": "sample_pitch_increased.wav",
-    "true_label": "sample",
+    "true_label": null,
     "error": null,
     "predictions": [
       {
-        "species": "cat",
-        "confidence": 0.0816
+        "species": "cat_004",
+        "confidence": 0.0667
       },
       {
-        "species": "cow",
+        "species": "cat_001",
+        "confidence": 0.05
+      },
+      {
+        "species": "cow_003",
+        "confidence": 0.05
+      },
+      {
+        "species": "dog_005",
+        "confidence": 0.0455
+      },
+      {
+        "species": "goat_002",
         "confidence": 0.0417
       },
       {
-        "species": "goat",
-        "confidence": 0.0192
+        "species": "dog_003",
+        "confidence": 0.0417
       },
       {
-        "species": "rooster",
-        "confidence": 0.0119
+        "species": "cow_001",
+        "confidence": 0.04
       },
       {
-        "species": "monkey",
-        "confidence": 0.0108
+        "species": "goat_001",
+        "confidence": 0.0345
       },
       {
-        "species": "crow",
-        "confidence": 0.0095
+        "species": "cat_005",
+        "confidence": 0.0286
       },
       {
-        "species": "horse",
-        "confidence": 0.0092
+        "species": "crow_002",
+        "confidence": 0.0286
+      },
+      {
+        "species": "cat_002",
+        "confidence": 0.025
+      },
+      {
+        "species": "cow_004",
+        "confidence": 0.025
+      },
+      {
+        "species": "crow_003",
+        "confidence": 0.025
+      },
+      {
+        "species": "horse_004",
+        "confidence": 0.02
+      },
+      {
+        "species": "horse_003",
+        "confidence": 0.0182
+      },
+      {
+        "species": "rooster_002",
+        "confidence": 0.0182
+      },
+      {
+        "species": "rooster_003",
+        "confidence": 0.0182
+      },
+      {
+        "species": "rooster_001",
+        "confidence": 0.0169
+      },
+      {
+        "species": "goat_005",
+        "confidence": 0.0169
+      },
+      {
+        "species": "horse_001",
+        "confidence": 0.0154
+      },
+      {
+        "species": "monkey_001",
+        "confidence": 0.0114
+      },
+      {
+        "species": "monkey_004",
+        "confidence": 0.0114
+      },
+      {
+        "species": "monkey_002",
+        "confidence": 0.0099
+      },
+      {
+        "species": "goat_004",
+        "confidence": 0.0076
+      },
+      {
+        "species": "monkey_005",
+        "confidence": 0.0072
+      },
+      {
+        "species": "cow_002",
+        "confidence": 0.0066
+      },
+      {
+        "species": "horse_002",
+        "confidence": 0.0057
+      },
+      {
+        "species": "crow_005",
+        "confidence": 0.0049
+      },
+      {
+        "species": "cat_003",
+        "confidence": 0.0048
+      },
+      {
+        "species": "rooster_004",
+        "confidence": 0.0045
+      },
+      {
+        "species": "cow_005",
+        "confidence": 0.0045
+      },
+      {
+        "species": "goat_003",
+        "confidence": 0.0043
+      },
+      {
+        "species": "monkey_003",
+        "confidence": 0.0043
+      },
+      {
+        "species": "dog_004",
+        "confidence": 0.0043
+      },
+      {
+        "species": "horse_005",
+        "confidence": 0.0038
+      },
+      {
+        "species": "dog_002",
+        "confidence": 0.0025
       }
     ]
   },
   {
     "file": "sample_slowed.wav",
-    "true_label": "sample",
+    "true_label": null,
     "error": null,
     "predictions": [
       {
-        "species": "dog",
-        "confidence": 0.2
+        "species": "rooster_005",
+        "confidence": 0.125
       },
       {
-        "species": "cow",
-        "confidence": 0.075
+        "species": "goat_001",
+        "confidence": 0.069
       },
       {
-        "species": "cat",
+        "species": "cow_004",
+        "confidence": 0.0667
+      },
+      {
+        "species": "cat_004",
+        "confidence": 0.0667
+      },
+      {
+        "species": "cow_001",
+        "confidence": 0.0667
+      },
+      {
+        "species": "cat_005",
+        "confidence": 0.0526
+      },
+      {
+        "species": "dog_005",
+        "confidence": 0.0455
+      },
+      {
+        "species": "dog_003",
+        "confidence": 0.0417
+      },
+      {
+        "species": "goat_002",
+        "confidence": 0.0417
+      },
+      {
+        "species": "horse_004",
         "confidence": 0.04
       },
       {
-        "species": "rooster",
-        "confidence": 0.0357
+        "species": "cat_001",
+        "confidence": 0.04
       },
       {
-        "species": "goat",
+        "species": "rooster_001",
+        "confidence": 0.0364
+      },
+      {
+        "species": "crow_002",
+        "confidence": 0.0333
+      },
+      {
+        "species": "crow_004",
+        "confidence": 0.0294
+      },
+      {
+        "species": "goat_005",
+        "confidence": 0.0259
+      },
+      {
+        "species": "cat_002",
+        "confidence": 0.0256
+      },
+      {
+        "species": "cow_003",
+        "confidence": 0.0256
+      },
+      {
+        "species": "rooster_003",
+        "confidence": 0.0253
+      },
+      {
+        "species": "rooster_002",
+        "confidence": 0.0235
+      },
+      {
+        "species": "crow_003",
+        "confidence": 0.0204
+      },
+      {
+        "species": "goat_004",
+        "confidence": 0.0201
+      },
+      {
+        "species": "horse_003",
         "confidence": 0.02
       },
       {
-        "species": "monkey",
-        "confidence": 0.0108
+        "species": "rooster_004",
+        "confidence": 0.017
       },
       {
-        "species": "horse",
-        "confidence": 0.0103
+        "species": "horse_001",
+        "confidence": 0.0154
       },
       {
-        "species": "crow",
-        "confidence": 0.0095
+        "species": "monkey_005",
+        "confidence": 0.0144
+      },
+      {
+        "species": "goat_003",
+        "confidence": 0.0128
+      },
+      {
+        "species": "monkey_001",
+        "confidence": 0.0114
+      },
+      {
+        "species": "monkey_004",
+        "confidence": 0.0114
+      },
+      {
+        "species": "monkey_002",
+        "confidence": 0.0093
+      },
+      {
+        "species": "cow_005",
+        "confidence": 0.0092
+      },
+      {
+        "species": "crow_005",
+        "confidence": 0.009
+      },
+      {
+        "species": "horse_002",
+        "confidence": 0.0085
+      },
+      {
+        "species": "monkey_003",
+        "confidence": 0.0085
+      },
+      {
+        "species": "cat_003",
+        "confidence": 0.0079
+      },
+      {
+        "species": "horse_005",
+        "confidence": 0.0077
+      },
+      {
+        "species": "cow_002",
+        "confidence": 0.0066
+      },
+      {
+        "species": "dog_002",
+        "confidence": 0.0049
+      },
+      {
+        "species": "dog_004",
+        "confidence": 0.0043
       }
     ]
   },
   {
     "file": "sample_speeded.wav",
-    "true_label": "sample",
+    "true_label": null,
     "error": null,
     "predictions": [
       {
-        "species": "cat",
-        "confidence": 0.08
+        "species": "cow_001",
+        "confidence": 0.1
       },
       {
-        "species": "cow",
-        "confidence": 0.05
+        "species": "goat_002",
+        "confidence": 0.0541
       },
       {
-        "species": "goat",
-        "confidence": 0.0192
+        "species": "cat_005",
+        "confidence": 0.0526
       },
       {
-        "species": "rooster",
-        "confidence": 0.0119
+        "species": "dog_005",
+        "confidence": 0.0455
       },
       {
-        "species": "crow",
-        "confidence": 0.0095
+        "species": "dog_003",
+        "confidence": 0.0417
       },
       {
-        "species": "monkey",
-        "confidence": 0.0094
+        "species": "cat_001",
+        "confidence": 0.04
       },
       {
-        "species": "horse",
-        "confidence": 0.0092
+        "species": "cat_004",
+        "confidence": 0.0345
+      },
+      {
+        "species": "cow_003",
+        "confidence": 0.0333
+      },
+      {
+        "species": "crow_002",
+        "confidence": 0.0286
+      },
+      {
+        "species": "cat_002",
+        "confidence": 0.0256
+      },
+      {
+        "species": "goat_001",
+        "confidence": 0.0256
+      },
+      {
+        "species": "cow_004",
+        "confidence": 0.025
+      },
+      {
+        "species": "crow_004",
+        "confidence": 0.0222
+      },
+      {
+        "species": "horse_004",
+        "confidence": 0.02
+      },
+      {
+        "species": "horse_003",
+        "confidence": 0.0182
+      },
+      {
+        "species": "rooster_003",
+        "confidence": 0.0182
+      },
+      {
+        "species": "rooster_001",
+        "confidence": 0.0169
+      },
+      {
+        "species": "rooster_002",
+        "confidence": 0.0167
+      },
+      {
+        "species": "crow_003",
+        "confidence": 0.0167
+      },
+      {
+        "species": "horse_001",
+        "confidence": 0.0154
+      },
+      {
+        "species": "goat_005",
+        "confidence": 0.0127
+      },
+      {
+        "species": "monkey_001",
+        "confidence": 0.0108
+      },
+      {
+        "species": "monkey_004",
+        "confidence": 0.0097
+      },
+      {
+        "species": "cat_003",
+        "confidence": 0.0085
+      },
+      {
+        "species": "cow_005",
+        "confidence": 0.0083
+      },
+      {
+        "species": "goat_004",
+        "confidence": 0.0076
+      },
+      {
+        "species": "rooster_004",
+        "confidence": 0.0074
+      },
+      {
+        "species": "monkey_005",
+        "confidence": 0.0072
+      },
+      {
+        "species": "horse_005",
+        "confidence": 0.0069
+      },
+      {
+        "species": "cow_002",
+        "confidence": 0.0067
+      },
+      {
+        "species": "monkey_002",
+        "confidence": 0.0066
+      },
+      {
+        "species": "goat_003",
+        "confidence": 0.0061
+      },
+      {
+        "species": "horse_002",
+        "confidence": 0.0057
+      },
+      {
+        "species": "crow_005",
+        "confidence": 0.0053
+      },
+      {
+        "species": "dog_002",
+        "confidence": 0.0049
+      },
+      {
+        "species": "monkey_003",
+        "confidence": 0.0043
+      },
+      {
+        "species": "dog_004",
+        "confidence": 0.0043
       }
     ]
   },
   {
     "file": "sample_toned.wav",
-    "true_label": "sample",
+    "true_label": null,
     "error": null,
     "predictions": [
       {
-        "species": "cat",
-        "confidence": 0.3265
+        "species": "rooster_005",
+        "confidence": 0.1667
       },
       {
-        "species": "cow",
-        "confidence": 0.075
+        "species": "cat_001",
+        "confidence": 0.1591
       },
       {
-        "species": "goat",
-        "confidence": 0.02
+        "species": "cow_001",
+        "confidence": 0.1
       },
       {
-        "species": "horse",
+        "species": "dog_005",
+        "confidence": 0.0606
+      },
+      {
+        "species": "cat_005",
+        "confidence": 0.0526
+      },
+      {
+        "species": "cat_004",
+        "confidence": 0.05
+      },
+      {
+        "species": "cow_003",
+        "confidence": 0.05
+      },
+      {
+        "species": "goat_002",
+        "confidence": 0.0417
+      },
+      {
+        "species": "crow_003",
+        "confidence": 0.0408
+      },
+      {
+        "species": "cat_002",
+        "confidence": 0.04
+      },
+      {
+        "species": "dog_003",
+        "confidence": 0.0345
+      },
+      {
+        "species": "rooster_001",
+        "confidence": 0.0339
+      },
+      {
+        "species": "cow_004",
+        "confidence": 0.0333
+      },
+      {
+        "species": "crow_004",
+        "confidence": 0.0294
+      },
+      {
+        "species": "goat_001",
+        "confidence": 0.0286
+      },
+      {
+        "species": "crow_002",
+        "confidence": 0.025
+      },
+      {
+        "species": "rooster_002",
+        "confidence": 0.0235
+      },
+      {
+        "species": "monkey_004",
+        "confidence": 0.0227
+      },
+      {
+        "species": "horse_004",
+        "confidence": 0.0213
+      },
+      {
+        "species": "rooster_003",
+        "confidence": 0.0182
+      },
+      {
+        "species": "horse_003",
+        "confidence": 0.0182
+      },
+      {
+        "species": "horse_001",
         "confidence": 0.0154
       },
       {
-        "species": "rooster",
-        "confidence": 0.0119
+        "species": "goat_004",
+        "confidence": 0.0148
       },
       {
-        "species": "monkey",
-        "confidence": 0.0108
+        "species": "monkey_001",
+        "confidence": 0.0114
       },
       {
-        "species": "crow",
+        "species": "goat_005",
         "confidence": 0.0095
+      },
+      {
+        "species": "rooster_004",
+        "confidence": 0.0088
+      },
+      {
+        "species": "dog_004",
+        "confidence": 0.0082
+      },
+      {
+        "species": "horse_005",
+        "confidence": 0.0077
+      },
+      {
+        "species": "dog_002",
+        "confidence": 0.0072
+      },
+      {
+        "species": "monkey_005",
+        "confidence": 0.0072
+      },
+      {
+        "species": "cow_005",
+        "confidence": 0.0068
+      },
+      {
+        "species": "monkey_003",
+        "confidence": 0.0068
+      },
+      {
+        "species": "cow_002",
+        "confidence": 0.0067
+      },
+      {
+        "species": "goat_003",
+        "confidence": 0.0066
+      },
+      {
+        "species": "monkey_002",
+        "confidence": 0.0062
+      },
+      {
+        "species": "horse_002",
+        "confidence": 0.0057
+      },
+      {
+        "species": "crow_005",
+        "confidence": 0.0053
+      },
+      {
+        "species": "cat_003",
+        "confidence": 0.0048
       }
     ]
   }

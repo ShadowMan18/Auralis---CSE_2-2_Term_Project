@@ -212,7 +212,10 @@ def _detect_in_windows(matcher, windows, sample_rate):
     for window in windows:
         spectrogram = _compute_log_spectrogram(window, sample_rate)
         detections = matcher.detect(
-            spectrogram, variant_separator=cfg.VARIANT_SEPARATOR, **EXTRACT_PARAMS
+            spectrogram,
+            min_raw_count=cfg.MIN_RAW_MATCH_COUNT,
+            variant_separator=cfg.VARIANT_SEPARATOR,
+            **EXTRACT_PARAMS,
         )
         for species, info in detections:
             if species not in best_scores or info["score"] > best_scores[species]:
@@ -267,8 +270,21 @@ def process_sample(sample):
         logger.exception("Failed to process uploaded sample '%s'", sample.filename)
         return {"error": "Failed to process the uploaded audio file."}, 422
 
+    # The reference library contains multiple recordings per animal
+    # (cat_001, cat_002, ...), each with several augmentation variants.
+    # Collapse those exemplars to the animal class for the API. Keep the
+    # strongest exemplar score: each recording is a separate call/template,
+    # so averaging would penalize a valid call that resembles only one of
+    # the available references. This remains a fingerprint similarity score,
+    # not a calibrated probability.
+    species_scores = {}
+    for reference_id, score in best_scores.items():
+        species = reference_id.split("_", 1)[0]
+        if species not in species_scores or score > species_scores[species]:
+            species_scores[species] = score
+
     detected = [
-        (species, score) for species, score in best_scores.items()
+        (species, score) for species, score in species_scores.items()
         if score >= CONFIDENCE_THRESHOLD
     ]
     detected.sort(key=lambda pair: pair[1], reverse=True)

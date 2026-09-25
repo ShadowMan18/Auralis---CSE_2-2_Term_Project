@@ -74,7 +74,10 @@ MATCHER_PARAMS = dict(
     fan_out=5,
     min_time_delta=1,
     max_time_delta=100,
-    pitch_invariant=True,   # relative-frequency hash -- tolerates pitch shift
+    # Keep absolute log-frequency bins in the hash. Relative-only hashes
+    # collide across unrelated animal calls that share similar intervals.
+    # The reference augmentation grid below supplies limited pitch tolerance.
+    pitch_invariant=False,
     time_bucket=2,          # coarser dt -- some tolerance to mild time-stretch
 )
 
@@ -97,6 +100,10 @@ TEMPO_AUGMENT_RATES = (1.0, 1.15)        # rate multiplier (1.0 = unchanged)
 # docstring for why this has to happen AFTER scoring, not by merging
 # variants under one ref_id at build time.
 VARIANT_SEPARATOR = "::"
+
+# Require several hashes to agree at one time offset before treating a
+# reference as a match. A single common hash is not meaningful evidence.
+MIN_RAW_MATCH_COUNT = 3
 
 # --- Detection threshold ------------------------------------------------
 
