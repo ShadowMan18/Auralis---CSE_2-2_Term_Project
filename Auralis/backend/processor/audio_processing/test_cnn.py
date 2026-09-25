@@ -5,10 +5,10 @@ inference each time you want to look at the chart.
 
 Usage
 -----
-    python test.py                  # run inference on every file, cache to test_results.json, then plot
-    python test.py --replot         # skip inference, just re-plot from the existing cache
-    python test.py --top-k 5        # keep more than the top prediction per file
-    python test.py --threshold 0.3  # override the threshold line drawn on the chart
+    python test_cnn.py                  # cache to test_cnn_results.json, then plot
+    python test_cnn.py --replot         # skip inference, just re-plot the CNN cache
+    python test_cnn.py --top-k 5        # keep more than the top prediction per file
+    python test_cnn.py --threshold 0.3  # override the threshold line on the chart
 
 Run this from the `backend/` directory (the one containing the
 `processor` package) so `from processor.services import processor`
@@ -61,7 +61,7 @@ from processor.services import processor as detector
 SAMPLES_DIR = Path(
     r"C:\Users\Shadman Sami Shanon\OneDrive\Desktop\Auralis---CSE_2-2_Term_Project\Auralis\backend\processor\audio_processing\samples\test"
 )
-RESULTS_CACHE = Path(__file__).parent / "test_results.json"
+RESULTS_CACHE = Path(__file__).parent / "test_cnn_results.json"
 ALLOWED_EXTENSIONS = detector.ALLOWED_EXTENSIONS
 
 
@@ -174,7 +174,7 @@ def plot_results(results, threshold=None):
                 species, rotation=90, fontsize=7, ha="center", va="bottom")
 
     fig.tight_layout()
-    out_path = Path(__file__).parent / "test_results_chart.png"
+    out_path = Path(__file__).parent / "test_cnn_results_chart.png"
     fig.savefig(out_path, dpi=150)
     print(f"Chart saved to {out_path}")
     plt.show()

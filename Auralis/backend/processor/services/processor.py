@@ -496,10 +496,16 @@ def _get_pann():
         with _pann_lock:
             if _pann is None:
                 checkpoint_path = pann_cfg.ensure_assets()
+                import torch
                 from panns_inference import AudioTagging
-                logger.info("Loading PANN (%s, AudioSet 527 classes)", pann_cfg.MODEL_TYPE)
-                _pann = AudioTagging(checkpoint_path=str(checkpoint_path), device="cpu")
-                logger.info("PANN loaded: %d AudioSet labels", len(_pann.labels))
+                device = "cuda" if torch.cuda.is_available() else "cpu"
+                logger.info(
+                    "Loading PANN (%s, AudioSet 527 classes) on %s",
+                    pann_cfg.MODEL_TYPE,
+                    device,
+                )
+                _pann = AudioTagging(checkpoint_path=str(checkpoint_path), device=device)
+                logger.info("PANN loaded: %d AudioSet labels on %s", len(_pann.labels), device)
     return _pann
 
 

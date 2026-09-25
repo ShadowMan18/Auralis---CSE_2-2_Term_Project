@@ -46,8 +46,10 @@ def _get_tagger():
     global _tagger
     if _tagger is None:
         checkpoint_path = cfg.ensure_assets()
+        import torch
         from panns_inference import AudioTagging
-        _tagger = AudioTagging(checkpoint_path=str(checkpoint_path), device="cpu")
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        _tagger = AudioTagging(checkpoint_path=str(checkpoint_path), device=device)
     return _tagger
 
 

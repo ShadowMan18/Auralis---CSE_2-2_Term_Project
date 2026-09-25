@@ -56,56 +56,108 @@
         "dog_004.mp3"
       ]
     },
+    "frog": {
+      "val_mode": "source",
+      "fold": null,
+      "train_sources": [
+        "frog_003.mp3",
+        "frog_002.mp3",
+        "frog_004.mp3",
+        "frog_001.mp3"
+      ],
+      "val_sources": [
+        "frog_005.mp3"
+      ]
+    },
     "goat": {
       "val_mode": "source",
       "fold": null,
       "train_sources": [
-        "goat_003.mp3",
-        "goat_002.mp3",
+        "goat_001.mp3",
         "goat_004.mp3",
-        "goat_001.mp3"
+        "goat_003.mp3",
+        "goat_002.mp3"
       ],
       "val_sources": [
         "goat_005.mp3"
+      ]
+    },
+    "gunshot": {
+      "val_mode": "source",
+      "fold": null,
+      "train_sources": [
+        "gunshot_005.mp3",
+        "gunshot_004.mp3",
+        "gunshot_001.mp3",
+        "gunshot_002.mp3"
+      ],
+      "val_sources": [
+        "gunshot_003.mp3"
       ]
     },
     "horse": {
       "val_mode": "source",
       "fold": null,
       "train_sources": [
-        "horse_001.mp3",
-        "horse_004.mp3",
         "horse_003.mp3",
-        "horse_002.mp3"
+        "horse_001.mp3",
+        "horse_002.mp3",
+        "horse_005.mp3"
       ],
       "val_sources": [
-        "horse_005.mp3"
+        "horse_004.mp3"
       ]
     },
-    "monkey": {
+    "owl": {
       "val_mode": "source",
       "fold": null,
       "train_sources": [
-        "monkey_005.mp3",
-        "monkey_004.mp3",
-        "monkey_001.mp3",
-        "monkey_002.mp3"
+        "owl_004.mp3",
+        "owl_003.mp3",
+        "owl_002.mp3",
+        "owl_001.mp3"
       ],
       "val_sources": [
-        "monkey_003.mp3"
+        "owl_005.mp3"
+      ]
+    },
+    "roaring": {
+      "val_mode": "source",
+      "fold": null,
+      "train_sources": [
+        "roaring_cat_004.mp3",
+        "roaring_cat_003.mp3",
+        "roaring_cat_002.mp3",
+        "roaring_cat_001.mp3"
+      ],
+      "val_sources": [
+        "roaring_cat_005.mp3"
       ]
     },
     "rooster": {
       "val_mode": "source",
       "fold": null,
       "train_sources": [
-        "rooster_003.mp3",
         "rooster_001.mp3",
-        "rooster_002.mp3",
-        "rooster_005.mp3"
+        "rooster_005.mp3",
+        "rooster_003.mp3",
+        "rooster_004.mp3"
       ],
       "val_sources": [
-        "rooster_004.mp3"
+        "rooster_002.mp3"
+      ]
+    },
+    "wolf": {
+      "val_mode": "source",
+      "fold": null,
+      "train_sources": [
+        "wolf_003.mp3",
+        "wolf_005.mp3",
+        "wolf_004.mp3",
+        "wolf_001.mp3"
+      ],
+      "val_sources": [
+        "wolf_002.mp3"
       ]
     }
   }
