@@ -6,7 +6,8 @@ Same behavior as the functional version, reorganized into classes:
 - ConsumerSpec: a plain data holder for Step 1's four facts
   (target_sample_rate, target_channels, target_duration, hop_duration,
   amplitude_range) for one consumer (your own DSP pipeline, BirdNET, Perch...).
-- AudioDecoder / Resampler / ChannelMixer / Segmenter / AmplitudeScaler:
+- AudioDecoder / Resampler / ChannelMixer / SilenceTrimmer / Segmenter /
+  AmplitudeScaler:
   one class per pipeline stage, each stateless (just grouping the
   transform + its helpers together).
 - AudioPreprocessor: the coordinator. Owns one instance of each stage
@@ -30,8 +31,10 @@ import librosa
 
 try:
     from .resample import Resample
+    from .silence_trim import trim_leading_trailing_silence
 except ImportError:
     from resample import Resample
+    from silence_trim import trim_leading_trailing_silence
 
 
 @dataclass(frozen=True)
@@ -81,6 +84,14 @@ class ChannelMixer:
         elif target_channels > 1 and n_channels == 1:
             samples = np.repeat(samples, target_channels, axis=0)
         return samples[0] if target_channels == 1 else samples
+
+
+class SilenceTrimmer:
+    """Remove only leading/trailing silence, keeping internal pauses intact."""
+
+    def trim(self, samples):
+        trimmed, _index = trim_leading_trailing_silence(samples)
+        return trimmed
 
 
 class Segmenter:
@@ -138,12 +149,14 @@ class AudioPreprocessor:
         decoder: Optional[AudioDecoder] = None,
         resampler: Optional[Resampler] = None,
         mixer: Optional[ChannelMixer] = None,
+        trimmer: Optional[SilenceTrimmer] = None,
         segmenter: Optional[Segmenter] = None,
         scaler: Optional[AmplitudeScaler] = None,
     ):
         self._decoder = decoder or AudioDecoder()
         self._resampler = resampler or Resampler()
         self._mixer = mixer or ChannelMixer()
+        self._trimmer = trimmer or SilenceTrimmer()
         self._segmenter = segmenter or Segmenter()
         self._scaler = scaler or AmplitudeScaler()
 
@@ -155,13 +168,15 @@ class AudioPreprocessor:
 
         Returns one float32 array per window, each exactly
         round(spec.target_duration * spec.target_sample_rate) samples
-        long, scaled into spec.amplitude_range. If spec.target_duration
-        is None, a single un-segmented array is returned as a one-item
-        list.
+        long, scaled into spec.amplitude_range. Leading and trailing silence
+        is removed before segmentation; internal pauses are kept. If
+        spec.target_duration is None, a single un-segmented array is returned
+        as a one-item list.
         """
         samples, native_rate = self._decoder.decode(file_obj)
         samples = self._resampler.resample(samples, native_rate, spec.target_sample_rate)
         samples = self._mixer.downmix(samples, spec.target_channels)
+        samples = self._trimmer.trim(samples)
         windows = self._segmenter.segment_or_pad(
             samples, spec.target_sample_rate, spec.target_duration, spec.hop_duration
         )
