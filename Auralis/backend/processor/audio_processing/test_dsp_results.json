@@ -6,7 +6,35 @@
     "predictions": [
       {
         "species": "cat",
-        "confidence": 0.468
+        "confidence": 0.476
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1667
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0769
+      },
+      {
+        "species": "horse",
+        "confidence": 0.06
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0216
       }
     ]
   },
@@ -18,6 +46,34 @@
       {
         "species": "cat",
         "confidence": 1.0
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0345
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0303
+      },
+      {
+        "species": "horse",
+        "confidence": 0.025
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.0182
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0098
       }
     ]
   },
@@ -29,6 +85,34 @@
       {
         "species": "cat",
         "confidence": 0.7955
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0476
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0303
+      },
+      {
+        "species": "horse",
+        "confidence": 0.025
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.0182
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0114
       }
     ]
   },
@@ -36,13 +120,79 @@
     "file": "cat_pitch_decreased.wav",
     "true_label": "cat",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "rooster",
+        "confidence": 0.1
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0667
+      },
+      {
+        "species": "cat",
+        "confidence": 0.05
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0417
+      },
+      {
+        "species": "dog",
+        "confidence": 0.04
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0345
+      },
+      {
+        "species": "horse",
+        "confidence": 0.02
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0114
+      }
+    ]
   },
   {
     "file": "cat_pitch_increased.wav",
     "true_label": "cat",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0476
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0345
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0345
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0333
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.0235
+      },
+      {
+        "species": "horse",
+        "confidence": 0.02
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0165
+      }
+    ]
   },
   {
     "file": "cat_slowed.wav",
@@ -50,8 +200,36 @@
     "error": null,
     "predictions": [
       {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
         "species": "cat",
         "confidence": 0.075
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0588
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0476
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0213
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0167
       }
     ]
   },
@@ -59,7 +237,40 @@
     "file": "cat_speeded.wav",
     "true_label": "cat",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0417
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0345
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0333
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.0182
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0114
+      }
+    ]
   },
   {
     "file": "cat_toned.wav",
@@ -69,6 +280,34 @@
       {
         "species": "cat",
         "confidence": 0.4474
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.125
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "dog",
+        "confidence": 0.04
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0222
+      },
+      {
+        "species": "horse",
+        "confidence": 0.02
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0114
       }
     ]
   },
@@ -80,6 +319,34 @@
       {
         "species": "cow",
         "confidence": 0.1579
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0345
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0345
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0294
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0185
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.0182
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0154
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0114
       }
     ]
   },
@@ -91,6 +358,34 @@
       {
         "species": "cow",
         "confidence": 1.0
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0417
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0345
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0294
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0222
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.0182
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0133
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0114
       }
     ]
   },
@@ -102,6 +397,34 @@
       {
         "species": "cow",
         "confidence": 0.6461
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0811
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0556
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "horse",
+        "confidence": 0.04
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0286
       }
     ]
   },
@@ -109,19 +432,118 @@
     "file": "cow_pitch_decreased.wav",
     "true_label": "cow",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "cow",
+        "confidence": 0.1667
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0303
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.0182
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0133
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0097
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0046
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0042
+      }
+    ]
   },
   {
     "file": "cow_pitch_increased.wav",
     "true_label": "cow",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "rooster",
+        "confidence": 0.0769
+      },
+      {
+        "species": "cat",
+        "confidence": 0.05
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0417
+      },
+      {
+        "species": "dog",
+        "confidence": 0.04
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0286
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0182
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0167
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0114
+      }
+    ]
   },
   {
     "file": "cow_slowed.wav",
     "true_label": "cow",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0526
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "cat",
+        "confidence": 0.05
+      },
+      {
+        "species": "goat",
+        "confidence": 0.027
+      },
+      {
+        "species": "horse",
+        "confidence": 0.02
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0163
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0042
+      }
+    ]
   },
   {
     "file": "cow_speeded.wav",
@@ -129,8 +551,36 @@
     "error": null,
     "predictions": [
       {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "goat",
+        "confidence": 0.069
+      },
+      {
         "species": "cow",
-        "confidence": 0.0131
+        "confidence": 0.0667
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0588
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0417
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0316
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0187
       }
     ]
   },
@@ -141,11 +591,35 @@
     "predictions": [
       {
         "species": "cow",
-        "confidence": 0.8514
+        "confidence": 0.8541
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cat",
+        "confidence": 0.1
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0513
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
       },
       {
         "species": "horse",
-        "confidence": 0.008
+        "confidence": 0.0462
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0182
       }
     ]
   },
@@ -163,6 +637,34 @@
       {
         "species": "crow",
         "confidence": 1.0
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0588
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.038
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0227
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0213
       }
     ]
   },
@@ -173,7 +675,35 @@
     "predictions": [
       {
         "species": "crow",
-        "confidence": 0.6343
+        "confidence": 0.6389
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1667
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1
+      },
+      {
+        "species": "goat",
+        "confidence": 0.05
+      },
+      {
+        "species": "cat",
+        "confidence": 0.05
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0227
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0213
       }
     ]
   },
@@ -181,25 +711,157 @@
     "file": "crow_pitch_decreased.wav",
     "true_label": "crow",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0417
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0417
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0263
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0182
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.0182
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0114
+      }
+    ]
   },
   {
     "file": "crow_pitch_increased.wav",
     "true_label": "crow",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cat",
+        "confidence": 0.069
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0588
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0267
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0215
+      }
+    ]
   },
   {
     "file": "crow_slowed.wav",
     "true_label": "crow",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "cow",
+        "confidence": 0.1667
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0645
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0588
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0526
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0375
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.0339
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0215
+      }
+    ]
   },
   {
     "file": "crow_speeded.wav",
     "true_label": "crow",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "dog",
+        "confidence": 0.12
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0526
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "cat",
+        "confidence": 0.05
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0182
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.0169
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0114
+      }
+    ]
   },
   {
     "file": "crow_toned.wav",
@@ -209,6 +871,34 @@
       {
         "species": "crow",
         "confidence": 0.5417
+      },
+      {
+        "species": "goat",
+        "confidence": 0.025
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0182
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.0143
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0108
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0046
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0042
+      },
+      {
+        "species": "cow",
+        "confidence": 0.004
       }
     ]
   },
@@ -220,6 +910,34 @@
       {
         "species": "dog",
         "confidence": 0.2821
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.125
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0333
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0333
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0185
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0154
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0114
       }
     ]
   },
@@ -230,7 +948,35 @@
     "predictions": [
       {
         "species": "dog",
-        "confidence": 1.0
+        "confidence": 1.0152
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.125
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "cat",
+        "confidence": 0.06
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0526
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0364
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0341
       }
     ]
   },
@@ -242,6 +988,34 @@
       {
         "species": "dog",
         "confidence": 0.8148
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.05
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0476
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0476
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "horse",
+        "confidence": 0.02
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0196
       }
     ]
   },
@@ -251,8 +1025,36 @@
     "error": null,
     "predictions": [
       {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0833
+      },
+      {
+        "species": "crow",
+        "confidence": 0.069
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0667
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
         "species": "dog",
-        "confidence": 0.007
+        "confidence": 0.0645
+      },
+      {
+        "species": "horse",
+        "confidence": 0.04
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.019
       }
     ]
   },
@@ -260,19 +1062,118 @@
     "file": "dog_pitch_increased.wav",
     "true_label": "dog",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "cow",
+        "confidence": 0.1667
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "goat",
+        "confidence": 0.069
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0541
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "cat",
+        "confidence": 0.05
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0345
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0227
+      }
+    ]
   },
   {
     "file": "dog_slowed.wav",
     "true_label": "dog",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "cow",
+        "confidence": 0.1667
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cat",
+        "confidence": 0.12
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0833
+      },
+      {
+        "species": "goat",
+        "confidence": 0.069
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0341
+      },
+      {
+        "species": "horse",
+        "confidence": 0.02
+      }
+    ]
   },
   {
     "file": "dog_speeded.wav",
     "true_label": "dog",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "dog",
+        "confidence": 0.15
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.125
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0476
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0333
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0222
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0182
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0114
+      }
+    ]
   },
   {
     "file": "dog_toned.wav",
@@ -282,6 +1183,34 @@
       {
         "species": "dog",
         "confidence": 1.0
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.125
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0333
+      },
+      {
+        "species": "crow",
+        "confidence": 0.025
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0182
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0118
       }
     ]
   },
@@ -292,7 +1221,35 @@
     "predictions": [
       {
         "species": "goat",
-        "confidence": 0.311
+        "confidence": 0.3171
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "dog",
+        "confidence": 0.1034
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0952
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0517
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0476
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0216
       }
     ]
   },
@@ -304,6 +1261,34 @@
       {
         "species": "goat",
         "confidence": 1.0
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0588
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0571
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "horse",
+        "confidence": 0.04
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0108
       }
     ]
   },
@@ -315,6 +1300,34 @@
       {
         "species": "goat",
         "confidence": 0.8378
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0588
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0571
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "horse",
+        "confidence": 0.04
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0108
       }
     ]
   },
@@ -322,7 +1335,40 @@
     "file": "goat_pitch_decreased.wav",
     "true_label": "goat",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0462
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "cat",
+        "confidence": 0.04
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0222
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.0182
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0114
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0043
+      }
+    ]
   },
   {
     "file": "goat_pitch_increased.wav",
@@ -330,8 +1376,36 @@
     "error": null,
     "predictions": [
       {
+        "species": "cat",
+        "confidence": 0.05
+      },
+      {
         "species": "goat",
-        "confidence": 0.0201
+        "confidence": 0.0417
+      },
+      {
+        "species": "dog",
+        "confidence": 0.04
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0333
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0286
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.0253
+      },
+      {
+        "species": "horse",
+        "confidence": 0.02
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0108
       }
     ]
   },
@@ -341,12 +1415,36 @@
     "error": null,
     "predictions": [
       {
-        "species": "goat",
-        "confidence": 0.0351
+        "species": "rooster",
+        "confidence": 0.3333
+      },
+      {
+        "species": "cat",
+        "confidence": 0.2
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0667
       },
       {
         "species": "horse",
-        "confidence": 0.0103
+        "confidence": 0.0638
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0513
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0194
       }
     ]
   },
@@ -354,7 +1452,40 @@
     "file": "goat_speeded.wav",
     "true_label": "goat",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "crow",
+        "confidence": 0.5
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0882
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0526
+      },
+      {
+        "species": "cat",
+        "confidence": 0.05
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.0182
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0114
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0106
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0047
+      }
+    ]
   },
   {
     "file": "goat_toned.wav",
@@ -364,6 +1495,34 @@
       {
         "species": "goat",
         "confidence": 0.6616
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0952
+      },
+      {
+        "species": "dog",
+        "confidence": 0.069
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0638
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0476
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0187
       }
     ]
   },
@@ -374,7 +1533,35 @@
     "predictions": [
       {
         "species": "horse",
-        "confidence": 0.4174
+        "confidence": 0.4261
+      },
+      {
+        "species": "cow",
+        "confidence": 0.15
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.0308
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0114
       }
     ]
   },
@@ -385,7 +1572,35 @@
     "predictions": [
       {
         "species": "horse",
-        "confidence": 1.0
+        "confidence": 1.0174
+      },
+      {
+        "species": "cow",
+        "confidence": 0.2
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0789
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.0217
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0122
       }
     ]
   },
@@ -396,11 +1611,35 @@
     "predictions": [
       {
         "species": "horse",
-        "confidence": 0.7559
+        "confidence": 0.7592
       },
       {
         "species": "rooster",
-        "confidence": 0.0135
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0857
+      },
+      {
+        "species": "goat",
+        "confidence": 0.069
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0645
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0199
       }
     ]
   },
@@ -408,13 +1647,79 @@
     "file": "horse_pitch_decreased.wav",
     "true_label": "horse",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "horse",
+        "confidence": 0.12
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "cat",
+        "confidence": 0.05
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0417
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0136
+      }
+    ]
   },
   {
     "file": "horse_pitch_increased.wav",
     "true_label": "horse",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0645
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0615
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0571
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0345
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0163
+      }
+    ]
   },
   {
     "file": "horse_slowed.wav",
@@ -422,8 +1727,36 @@
     "error": null,
     "predictions": [
       {
+        "species": "cow",
+        "confidence": 0.1667
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0789
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0645
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0513
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
         "species": "horse",
-        "confidence": 0.01
+        "confidence": 0.0364
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0227
       }
     ]
   },
@@ -433,8 +1766,36 @@
     "error": null,
     "predictions": [
       {
+        "species": "rooster",
+        "confidence": 0.125
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0968
+      },
+      {
         "species": "horse",
-        "confidence": 0.0615
+        "confidence": 0.0727
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0714
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0667
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0187
       }
     ]
   },
@@ -446,6 +1807,34 @@
       {
         "species": "horse",
         "confidence": 1.0
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0417
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.025
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0118
       }
     ]
   },
@@ -456,11 +1845,35 @@
     "predictions": [
       {
         "species": "monkey",
-        "confidence": 0.3717
+        "confidence": 0.3849
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cat",
+        "confidence": 0.1
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0882
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0667
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0645
       },
       {
         "species": "goat",
-        "confidence": 0.0117
+        "confidence": 0.0513
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0462
       }
     ]
   },
@@ -472,6 +1885,34 @@
       {
         "species": "monkey",
         "confidence": 1.0
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "horse",
+        "confidence": 0.04
       }
     ]
   },
@@ -483,6 +1924,34 @@
       {
         "species": "monkey",
         "confidence": 0.7045
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0952
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0667
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0645
+      },
+      {
+        "species": "horse",
+        "confidence": 0.06
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
       }
     ]
   },
@@ -492,8 +1961,36 @@
     "error": null,
     "predictions": [
       {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
         "species": "goat",
-        "confidence": 0.0229
+        "confidence": 0.0833
+      },
+      {
+        "species": "dog",
+        "confidence": 0.069
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0588
+      },
+      {
+        "species": "horse",
+        "confidence": 0.04
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0395
       }
     ]
   },
@@ -501,13 +1998,79 @@
     "file": "monkey_pitch_increased.wav",
     "true_label": "monkey",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "rooster",
+        "confidence": 0.1
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0667
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0645
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0503
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "horse",
+        "confidence": 0.02
+      }
+    ]
   },
   {
     "file": "monkey_slowed.wav",
     "true_label": "monkey",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "cow",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cat",
+        "confidence": 0.1
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.025
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0227
+      },
+      {
+        "species": "horse",
+        "confidence": 0.02
+      }
+    ]
   },
   {
     "file": "monkey_speeded.wav",
@@ -515,8 +2078,36 @@
     "error": null,
     "predictions": [
       {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0882
+      },
+      {
+        "species": "dog",
+        "confidence": 0.08
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0789
+      },
+      {
+        "species": "goat",
+        "confidence": 0.069
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0667
+      },
+      {
+        "species": "horse",
+        "confidence": 0.04
+      },
+      {
         "species": "monkey",
-        "confidence": 0.0095
+        "confidence": 0.0218
       }
     ]
   },
@@ -528,6 +2119,34 @@
       {
         "species": "monkey",
         "confidence": 0.9174
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "horse",
+        "confidence": 0.04
       }
     ]
   },
@@ -542,11 +2161,31 @@
       },
       {
         "species": "crow",
-        "confidence": 0.3684
+        "confidence": 0.5
       },
       {
         "species": "horse",
         "confidence": 0.2348
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1053
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0194
       }
     ]
   },
@@ -557,7 +2196,15 @@
     "predictions": [
       {
         "species": "dog",
-        "confidence": 0.4497
+        "confidence": 0.4516
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1667
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
       },
       {
         "species": "crow",
@@ -566,6 +2213,18 @@
       {
         "species": "horse",
         "confidence": 0.1137
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "goat",
+        "confidence": 0.05
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0248
       }
     ]
   },
@@ -576,11 +2235,35 @@
     "predictions": [
       {
         "species": "dog",
-        "confidence": 0.8821
+        "confidence": 0.8973
       },
       {
         "species": "cow",
         "confidence": 0.3333
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cat",
+        "confidence": 0.075
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0526
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0364
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0341
       }
     ]
   },
@@ -591,11 +2274,35 @@
     "predictions": [
       {
         "species": "dog",
-        "confidence": 0.351
+        "confidence": 0.3529
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
       },
       {
         "species": "horse",
         "confidence": 0.0928
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0215
       }
     ]
   },
@@ -605,16 +2312,36 @@
     "error": null,
     "predictions": [
       {
+        "species": "crow",
+        "confidence": 1.0
+      },
+      {
         "species": "dog",
         "confidence": 0.4372
       },
       {
         "species": "horse",
-        "confidence": 0.2303
+        "confidence": 0.2364
       },
       {
-        "species": "crow",
-        "confidence": 0.1204
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1667
+      },
+      {
+        "species": "goat",
+        "confidence": 0.069
+      },
+      {
+        "species": "cat",
+        "confidence": 0.05
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0227
       }
     ]
   },
@@ -630,6 +2357,30 @@
       {
         "species": "horse",
         "confidence": 0.4526
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1053
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0714
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.025
       }
     ]
   },
@@ -639,8 +2390,36 @@
     "error": null,
     "predictions": [
       {
+        "species": "crow",
+        "confidence": 1.0
+      },
+      {
         "species": "cow",
         "confidence": 0.5432
+      },
+      {
+        "species": "rooster",
+        "confidence": 0.125
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0645
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0364
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0286
       }
     ]
   },
@@ -651,15 +2430,35 @@
     "predictions": [
       {
         "species": "horse",
-        "confidence": 0.3579
+        "confidence": 0.3645
       },
       {
         "species": "goat",
-        "confidence": 0.1637
+        "confidence": 0.1754
       },
       {
         "species": "rooster",
-        "confidence": 0.0556
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0645
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0194
       }
     ]
   },
@@ -674,7 +2473,31 @@
       },
       {
         "species": "rooster",
-        "confidence": 0.0135
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0833
+      },
+      {
+        "species": "cat",
+        "confidence": 0.069
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0187
       }
     ]
   },
@@ -684,6 +2507,10 @@
     "error": null,
     "predictions": [
       {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
         "species": "monkey",
         "confidence": 0.152
       },
@@ -692,8 +2519,24 @@
         "confidence": 0.125
       },
       {
-        "species": "rooster",
-        "confidence": 0.0741
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0645
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0364
       }
     ]
   },
@@ -705,6 +2548,34 @@
       {
         "species": "rooster",
         "confidence": 0.2532
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0571
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0526
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0417
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0303
+      },
+      {
+        "species": "horse",
+        "confidence": 0.02
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.014
       }
     ]
   },
@@ -716,6 +2587,34 @@
       {
         "species": "rooster",
         "confidence": 1.0
+      },
+      {
+        "species": "cat",
+        "confidence": 0.15
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0476
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0345
+      },
+      {
+        "species": "crow",
+        "confidence": 0.025
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0118
       }
     ]
   },
@@ -727,6 +2626,34 @@
       {
         "species": "rooster",
         "confidence": 0.8316
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "cat",
+        "confidence": 0.05
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0417
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0345
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0144
       }
     ]
   },
@@ -734,19 +2661,118 @@
     "file": "rooster_pitch_decreased.wav",
     "true_label": "rooster",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0667
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0645
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0517
+      },
+      {
+        "species": "cat",
+        "confidence": 0.05
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0345
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0215
+      }
+    ]
   },
   {
     "file": "rooster_pitch_increased.wav",
     "true_label": "rooster",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "horse",
+        "confidence": 0.06
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0345
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0216
+      }
+    ]
   },
   {
     "file": "rooster_slowed.wav",
     "true_label": "rooster",
     "error": null,
-    "predictions": []
+    "predictions": [
+      {
+        "species": "rooster",
+        "confidence": 0.1667
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0645
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0526
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0476
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0417
+      },
+      {
+        "species": "horse",
+        "confidence": 0.04
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0114
+      }
+    ]
   },
   {
     "file": "rooster_speeded.wav",
@@ -755,7 +2781,35 @@
     "predictions": [
       {
         "species": "rooster",
-        "confidence": 0.0154
+        "confidence": 0.1667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.1667
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0833
+      },
+      {
+        "species": "dog",
+        "confidence": 0.069
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "crow",
+        "confidence": 0.0476
+      },
+      {
+        "species": "horse",
+        "confidence": 0.04
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0227
       }
     ]
   },
@@ -767,6 +2821,34 @@
       {
         "species": "rooster",
         "confidence": 1.0
+      },
+      {
+        "species": "goat",
+        "confidence": 0.0741
+      },
+      {
+        "species": "cat",
+        "confidence": 0.0667
+      },
+      {
+        "species": "cow",
+        "confidence": 0.0667
+      },
+      {
+        "species": "crow",
+        "confidence": 0.05
+      },
+      {
+        "species": "dog",
+        "confidence": 0.0455
+      },
+      {
+        "species": "horse",
+        "confidence": 0.0213
+      },
+      {
+        "species": "monkey",
+        "confidence": 0.0167
       }
     ]
   }
