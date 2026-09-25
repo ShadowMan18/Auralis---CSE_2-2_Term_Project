@@ -100,7 +100,7 @@ VARIANT_SEPARATOR = "::"
 
 # Keep the original low match-count floor so pitch-shifted and time-stretched
 # variants are not discarded before their reference augmentations can vote.
-MIN_RAW_MATCH_COUNT = 1
+MIN_RAW_MATCH_COUNT = 5
 
 # --- Detection threshold ------------------------------------------------
 

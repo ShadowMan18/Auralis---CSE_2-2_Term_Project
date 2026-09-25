@@ -31,7 +31,7 @@ Run this BEFORE dataset_producer.py, especially the first time you add new
 recordings. Standalone: only needs ml_config.py and silence_trim.py alongside
 it, no other pipeline files.
 
-Per-file warnings:
+Per-file warnings:A
   - "NOTHING KEPT": the whole file registered as silence at this threshold
     -- wrong file, or --trim-top-db needs to be higher (less aggressive).
   - ">90% removed": likely trimming into the actual call (soft/distant
