@@ -14,6 +14,9 @@ For every species in ``samples/references``, this writes eight WAV files to
 
 It also writes five direct-concatenation mixtures and five deliberately
 overlapping mixtures, choosing a random reference per participating species.
+The first mixture of each type always includes ``gunshot``; the rest remain
+random. This ensures both multi-animal test modes include at least one
+non-animal event without making every mixture artificial.
 ``generated_manifest.json`` records the source file(s), transformations, and
 mixture timing so predictions can be checked against known ground truth.
 
@@ -56,6 +59,7 @@ SPEED_RATE = 1.25
 TONE_FREQUENCY_HZ = 1000.0
 TONE_LEVEL_DB = -12.0
 MAX_PEAK = 0.95
+REQUIRED_MULTI_SPECIES = "gunshot"
 
 
 def species_for(path: Path) -> str:
@@ -153,10 +157,24 @@ def write_wav(path: Path, waveform: np.ndarray):
     sf.write(str(path), waveform.astype(np.float32), cfg.SAMPLE_RATE, subtype="FLOAT")
 
 
-def pick_events(grouped, rng: random.Random, events_per_mixture: int):
+def pick_events(
+    grouped,
+    rng: random.Random,
+    events_per_mixture: int,
+    required_species: str | None = None,
+):
+    """Choose distinct species, optionally forcing one into the mixture."""
     labels = list(grouped)
     count = min(events_per_mixture, len(labels))
-    selected_labels = rng.sample(labels, count)
+    if required_species is None:
+        selected_labels = rng.sample(labels, count)
+    else:
+        if required_species not in grouped:
+            raise ValueError(
+                f"Required multi-sample species '{required_species}' has no reference files"
+            )
+        other_labels = [label for label in labels if label != required_species]
+        selected_labels = [required_species] + rng.sample(other_labels, count - 1)
     return [(label, rng.choice(grouped[label])) for label in selected_labels]
 
 
@@ -241,6 +259,11 @@ def generate(references_dir: Path, output_dir: Path, seed: int, num_mixtures: in
         raise FileNotFoundError(f"No supported audio files found in {references_dir}")
     if len(grouped) < 2:
         raise ValueError("At least two species are needed to create mixed samples")
+    if REQUIRED_MULTI_SPECIES not in grouped:
+        raise ValueError(
+            f"References must include '{REQUIRED_MULTI_SPECIES}' so each multi-sample "
+            "test mode has a guaranteed gunshot case"
+        )
 
     output_dir.mkdir(parents=True, exist_ok=True)
     source_rng = random.Random(seed)
@@ -282,7 +305,12 @@ def generate(references_dir: Path, output_dir: Path, seed: int, num_mixtures: in
             print(f"wrote {filename:<35s} source={source.name}")
 
     for mixture_index in range(1, num_mixtures + 1):
-        events = pick_events(grouped, source_rng, events_per_mixture)
+        required_species = (
+            REQUIRED_MULTI_SPECIES if mixture_index == 1 else None
+        )
+        events = pick_events(
+            grouped, source_rng, events_per_mixture, required_species
+        )
         waveform, mixture_events = build_concatenated_mixture(events)
         filename = f"multi_nonoverlapping_{mixture_index:02d}.wav"
         write_wav(output_dir / filename, waveform)
@@ -295,7 +323,12 @@ def generate(references_dir: Path, output_dir: Path, seed: int, num_mixtures: in
         print(f"wrote {filename:<35s} species={manifest['samples'][filename]['species']}")
 
     for mixture_index in range(1, num_mixtures + 1):
-        events = pick_events(grouped, source_rng, events_per_mixture)
+        required_species = (
+            REQUIRED_MULTI_SPECIES if mixture_index == 1 else None
+        )
+        events = pick_events(
+            grouped, source_rng, events_per_mixture, required_species
+        )
         waveform, mixture_events = build_overlapping_mixture(events, noise_rng)
         filename = f"multi_overlapping_{mixture_index:02d}.wav"
         write_wav(output_dir / filename, waveform)

@@ -7,6 +7,10 @@
 tempCodeRunnerFile.py
 app.log
 
+test_dsp_results_chart.png
+
+test_dsp_results.json
+
 # Licensed iNatSounds data and locally trained model artifacts (large; do not commit)
 Auralis/backend/processor/audio_processing/inatsounds_downloads/
 Auralis/backend/processor/audio_processing/inat_routed/
