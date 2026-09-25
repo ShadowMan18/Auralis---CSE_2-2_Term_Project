@@ -54,6 +54,9 @@ from processor.audio_processing.stft import stft, to_log_frequency_spectrogram
 from processor.audio_processing.audio_matcher import AudioMatcher
 from processor.audio_processing import pipeline_config as cfg
 from processor.audio_processing import ml_config as ml_cfg
+from processor.audio_processing import pann_config as pann_cfg
+from processor.audio_processing.pann_label_mapping import map_pann_scores
+from processor.audio_processing.resample import Resample
 
 logger = logging.getLogger(__name__)
 
@@ -465,4 +468,164 @@ def process_cnn_sample(sample, lat=None, lon=None, month=None, top_k=8):
         "species": [item["species"] for item in predictions],
         "confidence": [item["confidence"] for item in predictions],
         "geo_prior_applied": False,
+    }, 200
+
+
+# --- PANN zero-shot path (exploratory; no fine-tuning, no species labels) --
+# Sits alongside the DSP fingerprint path (process_sample) and the phase-1
+# CNN path (process_cnn_sample). See pann_config.py's module docstring for
+# why this pathway is a documented exception to "team implements the DSP":
+# PANN's internal mel-spectrogram front-end is a library black-box, unlike
+# stft.py; only the *resampling* step (native rate -> PANN's required
+# 32000 Hz) still goes through our own hand-rolled Resample, same as
+# everywhere else in the project.
+
+_pann = None
+_pann_lock = threading.Lock()
+
+
+def _get_pann():
+    """Load panns_inference.AudioTagging once per process and reuse it
+    (same pattern as _get_matcher / _get_cnn). Imported lazily so the rest
+    of the service keeps working on a machine without panns_inference
+    installed. Like the CNN checkpoint: if you ever pin a different PANN
+    checkpoint, RESTART the server to pick it up -- this is cached for the
+    life of the process, same as _matcher and _cnn."""
+    global _pann
+    if _pann is None:
+        with _pann_lock:
+            if _pann is None:
+                checkpoint_path = pann_cfg.ensure_assets()
+                from panns_inference import AudioTagging
+                logger.info("Loading PANN (%s, AudioSet 527 classes)", pann_cfg.MODEL_TYPE)
+                _pann = AudioTagging(checkpoint_path=str(checkpoint_path), device="cpu")
+                logger.info("PANN loaded: %d AudioSet labels", len(_pann.labels))
+    return _pann
+
+
+def _pann_window_starts(n_samples):
+    """Start offsets (in samples, at PANN's 32000 Hz) of overlapping
+    analysis windows -- same idea as _cnn_window_starts, different
+    window/hop length (pann_config.CLIP_SECONDS / WINDOW_HOP_SECONDS)."""
+    window = int(pann_cfg.CLIP_SECONDS * pann_cfg.SAMPLE_RATE)
+    hop = max(1, int(pann_cfg.WINDOW_HOP_SECONDS * pann_cfg.SAMPLE_RATE))
+    if n_samples <= window:
+        return [0]
+    starts = list(range(0, n_samples - window + 1, hop))
+    if starts[-1] + window < n_samples:
+        starts.append(n_samples - window)  # keep the tail instead of dropping it
+    return starts
+
+
+def _pann_window_probs(tagger, waveform):
+    """Sigmoid probabilities per window, shape (n_windows, 527).
+
+    NOTE: unlike the CNN path's valid_frames masking (train_cnn.py's
+    SmallAudioCNN.forward), a short trailing window here is zero-padded
+    with NO masking -- PANN's forward pass has no equivalent hook for
+    "ignore these input samples". For a short upload this means the
+    padded silence can dilute (not fabricate, but soften) that window's
+    scores slightly. Acceptable for an exploratory zero-shot pathway;
+    flag if this ever needs tighter handling."""
+    window = int(pann_cfg.CLIP_SECONDS * pann_cfg.SAMPLE_RATE)
+    starts = _pann_window_starts(len(waveform))
+    batch = np.stack([
+        np.pad(waveform[s:s + window], (0, max(0, window - len(waveform[s:s + window]))))
+        for s in starts
+    ])
+    clipwise_output, _embedding = tagger.inference(batch)
+    return clipwise_output  # (n_windows, 527)
+
+
+def _aggregate_pann_scores(probs, labels):
+    """Best probability per AudioSet label across windows -> {label: score}.
+
+    No 'background' class to exclude here (unlike _aggregate_cnn_scores) --
+    PANN's output is a plain 527-way multi-label sigmoid, not a closed-set
+    softmax with a trained background/silence class, so there's nothing
+    equivalent to filter out at this stage. Thresholding in
+    process_pann_sample (pann_cfg.MIN_CONFIDENCE) is what keeps
+    quiet/irrelevant tags out of the final result."""
+    best = probs.max(axis=0)
+    return {label: float(score) for label, score in zip(labels, best)}
+
+
+def process_pann_sample(sample, top_k=None):
+    """Run zero-shot PANN (CNN14/AudioSet) tagging over an uploaded audio
+    file. Returns the SAME (dict, int) contract as process_cnn_sample, so
+    it can be wired to a route the same way -- but 'species' here are
+    generic AudioSet tag names (e.g. 'Bird', 'Dog', 'Rain'), NOT our own
+    candidate species list, since this pathway is zero-shot with no
+    fine-tuning. Don't feed this straight into UI code that assumes our
+    species taxonomy without relabeling/filtering it first.
+    """
+    if sample is None or not sample.filename:
+        return {"error": "No file uploaded. Expected a 'sample' field in multipart/form-data."}, 400
+    extension = Path(sample.filename).suffix.lower()
+    if extension not in ALLOWED_EXTENSIONS:
+        return {"error": f"Unsupported file type '{extension}'. Allowed: {sorted(ALLOWED_EXTENSIONS)}"}, 415
+
+    try:
+        top_k = pann_cfg.TOP_K if top_k is None else max(1, min(int(top_k), 50))
+    except (TypeError, ValueError):
+        return {"error": "top_k must be an integer."}, 400
+
+    try:
+        tagger = _get_pann()
+    except Exception:
+        logger.exception("Could not load PANN")
+        return {"error": "PANN tagging service is not configured correctly."}, 503
+
+    try:
+        temp_path = None
+        try:
+            with tempfile.NamedTemporaryFile(suffix=extension, delete=False) as temp:
+                temp_path = Path(temp.name)
+                sample.save(temp)
+            # Load at native rate + downmix (container decode only, same as
+            # process_cnn_sample's librosa.load call), THEN resample with our
+            # own polyphase resampler -- same division of labor as
+            # predict_pann.load_and_resample.
+            waveform, native_sr = librosa.load(
+                str(temp_path), sr=None, mono=True, duration=pann_cfg.MAX_SECONDS
+            )
+        finally:
+            if temp_path is not None:
+                temp_path.unlink(missing_ok=True)
+
+        if waveform.size == 0:
+            return {"error": "The uploaded audio file contains no audio."}, 422
+
+        if native_sr != pann_cfg.SAMPLE_RATE:
+            waveform = Resample().resample_hand_rolled(
+                waveform.astype(np.float32), native_sr, pann_cfg.SAMPLE_RATE
+            )
+
+        probs = _pann_window_probs(tagger, waveform)
+        raw_scores = _aggregate_pann_scores(probs, tagger.labels)
+        best_scores = map_pann_scores(
+            raw_scores, min_confidence=pann_cfg.MIN_CONFIDENCE
+        )
+        logger.info(
+            "Mapped PANN scores (pre-threshold, %d windows) for '%s': %s",
+            len(probs), sample.filename,
+            sorted(best_scores.items(), key=lambda kv: -kv[1]),
+        )
+    except Exception:
+        logger.exception("PANN tagging failed for '%s'", sample.filename)
+        return {"error": "Failed to process the uploaded audio file."}, 422
+
+    detected = sorted(
+        ((label, score) for label, score in best_scores.items() if score >= pann_cfg.MIN_CONFIDENCE),
+        key=lambda pair: pair[1], reverse=True,
+    )[:top_k]
+    predictions = [{"species": label, "confidence": round(score, 6)} for label, score in detected]
+    return {
+        "decision": predictions[0]["species"] if predictions else None,
+        "predictions": predictions,
+        # Same flat lists as the DSP/CNN paths, for the existing frontend --
+        # but see the docstring above: these are generic AudioSet tags.
+        "species": [item["species"] for item in predictions],
+        "confidence": [item["confidence"] for item in predictions],
+        "zero_shot": True,
     }, 200
