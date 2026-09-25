@@ -1,257 +1,128 @@
-"""
-processor/services/processor.py
+"""Run CNN inference for every audio file in ``samples/test``.
 
-Business logic for POST /api/upload-sample. The route handler stays thin
-(pull the file off the request, call process_sample, jsonify the result);
-all validation, DSP pipeline wiring, and formatting lives here so it can
-be unit-tested without Flask/JWT in the loop.
+The model is loaded once, then each supported audio file in the test folder
+(including files in its subfolders) is evaluated with the same CNN inference
+code as ``predict.py``.
 
-Builds the AudioMatcher reference library directly from the audio files
-in AURALIS_REFERENCES_DIR (default: samples/references/) -- no separate
-build-and-save-a-.pkl step. This is built ONCE per process (cached in
-_matcher below), not per request; rebuilding from raw audio on every
-upload would be far too slow.
-
-CHANGE FROM THE ORIGINAL VERSION: every parameter that has to match
-build_reference_library.py (spec, bandpass, STFT, log-frequency mapping,
-matcher fingerprint settings, keypoint-extraction settings) now comes
-from pipeline_config.py instead of being redefined here -- the two
-files drifting apart silently produces garbage scores, which is exactly
-what was starting to happen (build_reference_library.py wasn't even
-using the same spectrogram representation as this file). Query-time
-windows are also built through the same per-species reference
-augmentation-aware matcher (pitch_invariant + time_bucket hashing,
-adaptive per-row noise floor).
-
-NOTE on imports below: your bandpass.py currently imports via
-`from processor.audio_processing.resample import Resample`
-while routes.py imports via `from processor.services import processor`.
-Those two imply different PYTHONPATH roots. I've used the same style as
-bandpass.py here -- adjust to match whichever one your actual run
-config (wsgi entrypoint / Docker WORKDIR) uses, since both can't be
-correct simultaneously.
+Usage:
+    python test.py
+    python test.py --test-dir path/to/test --top-k 3
+    python -m processor.audio_processing.test
 """
 
-import logging
-import os
+import argparse
 from pathlib import Path
 
-import librosa
-
-from processor.audio_processing.audio_processing import AudioPreprocessor
-from processor.audio_processing.bandpass import apply_bandpass
-from processor.audio_processing.stft import stft, to_log_frequency_spectrogram
-from processor.audio_processing.audio_matcher import AudioMatcher
-from processor.audio_processing import pipeline_config as cfg
-
-logger = logging.getLogger(__name__)
+try:  # Run as part of the processor.audio_processing package.
+    from . import ml_config as cfg
+    from .predict import load_model, predict
+except ImportError:  # Run directly from this directory.
+    import ml_config as cfg
+    from predict import load_model, predict
 
 
-def _augmented_waveforms(waveform, sample_rate):
-    """Same augmentation grid as build_reference_library.py -- see that
-    file's docstring for why references get several pitch/tempo variants
-    instead of one. Duplicated here (rather than imported) only because
-    this module can't cleanly import a sibling top-level script; if you
-    promote build_reference_library.py's version to a shared module,
-    replace this copy with an import from there instead."""
-    for n_steps in cfg.PITCH_AUGMENT_STEPS:
-        for rate in cfg.TEMPO_AUGMENT_RATES:
-            if n_steps == 0.0 and rate == 1.0:
-                yield "orig", waveform.astype("float32")
-                continue
-            try:
-                y = waveform
-                label = "orig"
-                if n_steps != 0.0:
-                    try:
-                        y = librosa.effects.pitch_shift(y=y, sr=sample_rate, n_steps=n_steps)
-                    except TypeError:
-                        y = librosa.effects.pitch_shift(y, sample_rate, n_steps)
-                    label = f"pitch{n_steps:+.0f}"
-                if rate != 1.0:
-                    try:
-                        y = librosa.effects.time_stretch(y=y, rate=rate)
-                    except TypeError:
-                        y = librosa.effects.time_stretch(y, rate)
-                    label = f"{label}_rate{rate:.2f}"
-                yield label, y.astype("float32")
-            except Exception as exc:
-                logger.warning(
-                    "Skipping augmentation variant (pitch=%+.1f, rate=%.2f): %s",
-                    n_steps, rate, exc,
-                )
-
-# --- Configuration -------------------------------------------------------
-
-ALLOWED_EXTENSIONS = {".mp3", ".wav", ".flac", ".ogg", ".m4a"}
-
-REFERENCES_DIR = os.environ.get(
-    "AURALIS_REFERENCES_DIR",
-    str(Path(__file__).resolve().parent.parent / "audio_processing" / "samples" / "references"),
-)
-
-# Kept as module-level names (imported from pipeline_config) so existing
-# callers/tests that referenced processor.REFERENCE_SPEC etc. still work.
-REFERENCE_SPEC = cfg.REFERENCE_SPEC
-QUERY_SPEC = cfg.QUERY_SPEC
-BANDPASS_PARAMS = cfg.BANDPASS_PARAMS
-STFT_PARAMS = cfg.STFT_PARAMS
-LOG_FREQ_PARAMS = cfg.LOG_FREQ_PARAMS
-EXTRACT_PARAMS = cfg.EXTRACT_PARAMS
-MATCHER_PARAMS = cfg.MATCHER_PARAMS
-CONFIDENCE_THRESHOLD = cfg.CONFIDENCE_THRESHOLD
+AUDIO_EXTENSIONS = {".wav", ".mp3", ".flac", ".ogg", ".m4a"}
+DEFAULT_TEST_DIR = Path(__file__).resolve().parent / "samples" / "test"
 
 
-# --- Reference library: build once from the references folder, reuse -----
-
-_matcher = None
-
-
-def _compute_log_spectrogram(waveform, sample_rate):
-    filtered = apply_bandpass(waveform, sample_rate, **BANDPASS_PARAMS)
-    spectrogram_complex, freqs, _times = stft(filtered, sample_rate, **STFT_PARAMS)
-    log_spectrogram, _log_freqs = to_log_frequency_spectrogram(
-        spectrogram_complex, freqs, **LOG_FREQ_PARAMS
+def find_audio_files(test_dir: Path):
+    """Return supported audio files in deterministic, recursive order."""
+    return sorted(
+        path for path in test_dir.rglob("*")
+        if path.is_file() and path.suffix.lower() in AUDIO_EXTENSIONS
     )
-    return log_spectrogram
 
 
-def _build_matcher_from_references():
-    references_dir = Path(REFERENCES_DIR)
-    if not references_dir.exists():
-        raise FileNotFoundError(f"References folder not found: {references_dir}")
-
-    reference_files = sorted(
-        p for p in references_dir.iterdir()
-        if p.is_file() and p.suffix.lower() in ALLOWED_EXTENSIONS
-    )
-    if not reference_files:
-        raise FileNotFoundError(f"No reference audio files found in {references_dir}")
-
-    preprocessor = AudioPreprocessor()
-    matcher = AudioMatcher(**MATCHER_PARAMS)
-    sample_rate = REFERENCE_SPEC.target_sample_rate
-
-    for path in reference_files:
-        species_id = path.stem  # "cat.mp3" -> "cat"
-        with open(path, "rb") as file_obj:
-            windows = preprocessor.process(file_obj, REFERENCE_SPEC)
-        base_waveform = windows[0]  # target_duration=None -> exactly one, whole-clip window
-
-        n_variants = 0
-        for label, waveform in _augmented_waveforms(base_waveform, sample_rate):
-            spectrogram = _compute_log_spectrogram(waveform, sample_rate)
-            variant_ref_id = f"{species_id}{cfg.VARIANT_SEPARATOR}{label}"
-            matcher.add_reference(variant_ref_id, spectrogram, **EXTRACT_PARAMS)
-            n_variants += 1
-            if matcher.reference_hash_counts.get(variant_ref_id, 0) == 0:
-                logger.warning(
-                    "'%s' produced ZERO fingerprint hashes -- likely too quiet/short "
-                    "for the current extract_keypoints settings.", variant_ref_id
-                )
-        logger.info("Added reference '%s' from %s (%d variants)", species_id, path.name, n_variants)
-
-    return matcher
+def format_decision(decision):
+    return decision if decision is not None else "no confident detection"
 
 
-def _get_matcher():
-    """Lazily build the AudioMatcher from the references folder, once per
-    process. Rebuilding on every request would be far too slow -- this
-    caches the result in-memory after the first call.
+def run_batch(test_dir: Path, model_path: Path, min_confidence: float, top_k: int):
+    """Print a CNN prediction report for every supported file in *test_dir*.
 
-    NOTE: this rebuilds the augmented library from raw audio on process
-    start, same augmentation grid as build_reference_library.py. If you'd
-    rather not pay that cost per-process, point
-    AURALIS_REFERENCE_LIBRARY_PATH at build_reference_library.py's saved
-    .pkl and load it via AudioMatcher.load() instead -- just make sure
-    that .pkl was built with the same pipeline_config.py this process is
-    running, since a stale .pkl built under old settings will silently
-    produce garbage scores (see pipeline_config.py's module docstring).
+    Returns 0 when every file is processed successfully, 1 when no input files
+    are found, and 2 if one or more files cannot be processed.
     """
-    global _matcher
-    if _matcher is None:
-        logger.info("Building reference library from %s", REFERENCES_DIR)
-        _matcher = _build_matcher_from_references()
-        logger.info(
-            "Reference library built: %d species", len(_matcher.reference_hash_counts)
-        )
-    return _matcher
+    if not test_dir.is_dir():
+        print(f"Test folder not found: {test_dir}")
+        return 1
 
-
-def _detect_in_windows(matcher, windows, sample_rate):
-    """Run matcher.detect() per window; keep the best (max) score per
-    species across the whole recording -- Stage 8 window aggregation."""
-    best_scores = {}
-    for window in windows:
-        spectrogram = _compute_log_spectrogram(window, sample_rate)
-        detections = matcher.detect(
-            spectrogram, variant_separator=cfg.VARIANT_SEPARATOR, **EXTRACT_PARAMS
-        )
-        for species, info in detections:
-            if species not in best_scores or info["score"] > best_scores[species]:
-                best_scores[species] = info["score"]
-    return best_scores
-
-
-# --- Public entry point ----------------------------------------------------
-
-def process_sample(sample):
-    """
-    Run an uploaded audio file through the DSP detection pipeline.
-
-    Parameters
-    ----------
-    sample : werkzeug.datastructures.FileStorage or None
-        The 'sample' file from request.files.get('sample').
-
-    Returns
-    -------
-    (dict, int) -- matches the (result, status) contract the route
-    handler expects: `return jsonify(result), status`.
-    """
-    if sample is None or not sample.filename:
-        return {
-            "error": "No file uploaded. Expected a 'sample' field in multipart/form-data."
-        }, 400
-
-    extension = Path(sample.filename).suffix.lower()
-    if extension not in ALLOWED_EXTENSIONS:
-        return {
-            "error": f"Unsupported file type '{extension}'. Allowed: {sorted(ALLOWED_EXTENSIONS)}"
-        }, 415
+    files = find_audio_files(test_dir)
+    if not files:
+        extensions = ", ".join(sorted(AUDIO_EXTENSIONS))
+        print(f"No audio files found in {test_dir} (supported: {extensions}).")
+        return 1
 
     try:
-        matcher = _get_matcher()
+        model, idx_to_class = load_model(model_path)
     except FileNotFoundError as exc:
-        logger.error("Reference library unavailable: %s", exc)
-        return {"error": "Detection service is not ready (no reference audio found)."}, 503
+        print(f"CNN model or label map not found: {exc}")
+        return 1
 
-    try:
-        # sample is a werkzeug FileStorage -- it delegates read/seek/tell to
-        # its underlying stream, so it satisfies the file_obj interface
-        # AudioPreprocessor.process() expects directly. No temp file needed.
-        preprocessor = AudioPreprocessor()
-        windows = preprocessor.process(sample, QUERY_SPEC)
+    print(f"CNN model: {model_path}")
+    print(f"Test folder: {test_dir}")
+    print(f"Samples: {len(files)}\n")
 
-        best_scores = _detect_in_windows(matcher, windows, QUERY_SPEC.target_sample_rate)
-        logger.info("Raw scores (pre-threshold) for '%s': %s", sample.filename, best_scores)
+    failures = 0
+    for index, audio_path in enumerate(files, start=1):
+        relative_path = audio_path.relative_to(test_dir)
+        print(f"[{index}/{len(files)}] {relative_path}")
+        try:
+            decision, ranked = predict(
+                audio_path, model, idx_to_class, min_confidence=min_confidence
+            )
+        except Exception as exc:
+            failures += 1
+            print(f"  error: {exc}\n")
+            continue
 
-    except Exception:
-        logger.exception("Failed to process uploaded sample '%s'", sample.filename)
-        return {"error": "Failed to process the uploaded audio file."}, 422
+        for label, probability in ranked[:top_k]:
+            marker = " <-- top" if label == ranked[0][0] else ""
+            print(f"  {label:12s} {probability:.4f}{marker}")
+        print(f"  decision: {format_decision(decision)}\n")
 
-    detected = [
-        (species, score) for species, score in best_scores.items()
-        if score >= CONFIDENCE_THRESHOLD
-    ]
-    detected.sort(key=lambda pair: pair[1], reverse=True)
+    succeeded = len(files) - failures
+    print(f"Completed: {succeeded}/{len(files)} samples processed successfully.")
+    return 0 if failures == 0 else 2
 
-    logger.info(
-        "Processed '%s': %d species above threshold (of %d candidates)",
-        sample.filename, len(detected), len(best_scores),
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--test-dir",
+        type=Path,
+        default=DEFAULT_TEST_DIR,
+        help="Folder containing audio samples (default: samples/test).",
+    )
+    parser.add_argument(
+        "--model-path",
+        type=Path,
+        default=cfg.MODEL_PATH,
+        help="CNN checkpoint to use.",
+    )
+    parser.add_argument(
+        "--min-confidence",
+        type=float,
+        default=cfg.MIN_CONFIDENCE,
+        help="Minimum top-class probability needed for a detection.",
+    )
+    parser.add_argument(
+        "--top-k",
+        type=int,
+        default=3,
+        help="Number of class probabilities to show per sample.",
+    )
+    args = parser.parse_args()
+
+    if args.top_k < 1:
+        parser.error("--top-k must be at least 1")
+    if not 0.0 <= args.min_confidence <= 1.0:
+        parser.error("--min-confidence must be between 0 and 1")
+
+    raise SystemExit(
+        run_batch(args.test_dir, args.model_path, args.min_confidence, args.top_k)
     )
 
-    return {
-        "species": [species for species, _ in detected],
-        "confidence": [round(score, 4) for _, score in detected],
-    }, 200
+
+if __name__ == "__main__":
+    main()

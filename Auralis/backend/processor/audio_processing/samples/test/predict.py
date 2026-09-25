@@ -22,10 +22,10 @@ import torch.nn.functional as F
 
 try:  # imported as part of the processor.audio_processing package (Flask service)
     from . import ml_config as cfg
-    from .train_cnn import SmallAudioCNN, compute_logmel_with_length
+    from .train_cnn import SmallAudioCNN, compute_logmel
 except ImportError:  # run directly as a script from this folder
     import ml_config as cfg
-    from train_cnn import SmallAudioCNN, compute_logmel_with_length
+    from train_cnn import SmallAudioCNN, compute_logmel
 
 
 def load_model(model_path: Path):
@@ -41,12 +41,10 @@ def load_model(model_path: Path):
 
 
 def predict(path, model, idx_to_class, min_confidence=cfg.MIN_CONFIDENCE):
-    logmel, valid_frames = compute_logmel_with_length(path)
+    logmel = compute_logmel(path)
     x = torch.from_numpy(logmel).unsqueeze(0).unsqueeze(0)  # (1, 1, n_mels, n_frames)
     with torch.no_grad():
-        # valid_frames excludes any padding (files shorter than CLIP_SECONDS) from the
-        # prediction entirely -- see train_cnn.py's MASKED POOLING docstring note.
-        probs = F.softmax(model(x, valid_frames=[valid_frames]), dim=1).squeeze(0)
+        probs = F.softmax(model(x), dim=1).squeeze(0)
 
     ranked = sorted(
         ((idx_to_class[i], probs[i].item()) for i in range(len(probs))),
