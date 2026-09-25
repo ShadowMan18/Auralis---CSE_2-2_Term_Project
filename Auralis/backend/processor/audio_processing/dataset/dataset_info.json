@@ -121,17 +121,17 @@
         "owl_005.mp3"
       ]
     },
-    "roaring": {
+    "roaring-cat": {
       "val_mode": "source",
       "fold": null,
       "train_sources": [
-        "roaring_cat_004.mp3",
-        "roaring_cat_003.mp3",
-        "roaring_cat_002.mp3",
-        "roaring_cat_001.mp3"
+        "roaring-cat_004.mp3",
+        "roaring-cat_003.mp3",
+        "roaring-cat_002.mp3",
+        "roaring-cat_001.mp3"
       ],
       "val_sources": [
-        "roaring_cat_005.mp3"
+        "roaring-cat_005.mp3"
       ]
     },
     "rooster": {
@@ -145,19 +145,6 @@
       ],
       "val_sources": [
         "rooster_002.mp3"
-      ]
-    },
-    "wolf": {
-      "val_mode": "source",
-      "fold": null,
-      "train_sources": [
-        "wolf_003.mp3",
-        "wolf_005.mp3",
-        "wolf_004.mp3",
-        "wolf_001.mp3"
-      ],
-      "val_sources": [
-        "wolf_002.mp3"
       ]
     }
   }

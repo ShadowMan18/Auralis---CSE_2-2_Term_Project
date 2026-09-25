@@ -144,7 +144,7 @@
       ],
       "source": "cow_002.mp3",
       "variant": "speeded",
-      "duration_seconds": 5.6099
+      "duration_seconds": 5.5914
     },
     "cow_toned.wav": {
       "kind": "single_species_variant",
@@ -153,7 +153,7 @@
       ],
       "source": "cow_002.mp3",
       "variant": "toned",
-      "duration_seconds": 7.0124
+      "duration_seconds": 6.9892
     },
     "crow_original.wav": {
       "kind": "single_species_variant",
@@ -659,75 +659,75 @@
       "variant": "toned",
       "duration_seconds": 3.2276
     },
-    "roaring_original.wav": {
+    "roaring-cat_original.wav": {
       "kind": "single_species_variant",
       "species": [
-        "roaring"
+        "roaring-cat"
       ],
-      "source": "roaring_cat_005.mp3",
+      "source": "roaring-cat_005.mp3",
       "variant": "original",
       "duration_seconds": 4.2028
     },
-    "roaring_padded_silence.wav": {
+    "roaring-cat_padded_silence.wav": {
       "kind": "single_species_variant",
       "species": [
-        "roaring"
+        "roaring-cat"
       ],
-      "source": "roaring_cat_002.mp3",
+      "source": "roaring-cat_002.mp3",
       "variant": "padded_silence",
-      "duration_seconds": 4.5774
+      "duration_seconds": 4.5542
     },
-    "roaring_noised.wav": {
+    "roaring-cat_noised.wav": {
       "kind": "single_species_variant",
       "species": [
-        "roaring"
+        "roaring-cat"
       ],
-      "source": "roaring_cat_005.mp3",
+      "source": "roaring-cat_005.mp3",
       "variant": "noised",
       "duration_seconds": 4.2028
     },
-    "roaring_pitch_increased.wav": {
+    "roaring-cat_pitch_increased.wav": {
       "kind": "single_species_variant",
       "species": [
-        "roaring"
+        "roaring-cat"
       ],
-      "source": "roaring_cat_002.mp3",
+      "source": "roaring-cat_002.mp3",
       "variant": "pitch_increased",
-      "duration_seconds": 2.5774
+      "duration_seconds": 2.5542
     },
-    "roaring_pitch_decreased.wav": {
+    "roaring-cat_pitch_decreased.wav": {
       "kind": "single_species_variant",
       "species": [
-        "roaring"
+        "roaring-cat"
       ],
-      "source": "roaring_cat_002.mp3",
+      "source": "roaring-cat_002.mp3",
       "variant": "pitch_decreased",
-      "duration_seconds": 2.5774
+      "duration_seconds": 2.5542
     },
-    "roaring_slowed.wav": {
+    "roaring-cat_slowed.wav": {
       "kind": "single_species_variant",
       "species": [
-        "roaring"
+        "roaring-cat"
       ],
-      "source": "roaring_cat_004.mp3",
+      "source": "roaring-cat_004.mp3",
       "variant": "slowed",
       "duration_seconds": 3.0766
     },
-    "roaring_speeded.wav": {
+    "roaring-cat_speeded.wav": {
       "kind": "single_species_variant",
       "species": [
-        "roaring"
+        "roaring-cat"
       ],
-      "source": "roaring_cat_004.mp3",
+      "source": "roaring-cat_004.mp3",
       "variant": "speeded",
       "duration_seconds": 1.9691
     },
-    "roaring_toned.wav": {
+    "roaring-cat_toned.wav": {
       "kind": "single_species_variant",
       "species": [
-        "roaring"
+        "roaring-cat"
       ],
-      "source": "roaring_cat_003.mp3",
+      "source": "roaring-cat_003.mp3",
       "variant": "toned",
       "duration_seconds": 12.0424
     },
@@ -803,84 +803,12 @@
       "variant": "toned",
       "duration_seconds": 6.5016
     },
-    "wolf_original.wav": {
-      "kind": "single_species_variant",
-      "species": [
-        "wolf"
-      ],
-      "source": "wolf_003.mp3",
-      "variant": "original",
-      "duration_seconds": 7.9644
-    },
-    "wolf_padded_silence.wav": {
-      "kind": "single_species_variant",
-      "species": [
-        "wolf"
-      ],
-      "source": "wolf_001.mp3",
-      "variant": "padded_silence",
-      "duration_seconds": 6.6208
-    },
-    "wolf_noised.wav": {
-      "kind": "single_species_variant",
-      "species": [
-        "wolf"
-      ],
-      "source": "wolf_002.mp3",
-      "variant": "noised",
-      "duration_seconds": 7.4304
-    },
-    "wolf_pitch_increased.wav": {
-      "kind": "single_species_variant",
-      "species": [
-        "wolf"
-      ],
-      "source": "wolf_005.mp3",
-      "variant": "pitch_increased",
-      "duration_seconds": 5.5728
-    },
-    "wolf_pitch_decreased.wav": {
-      "kind": "single_species_variant",
-      "species": [
-        "wolf"
-      ],
-      "source": "wolf_003.mp3",
-      "variant": "pitch_decreased",
-      "duration_seconds": 7.9644
-    },
-    "wolf_slowed.wav": {
-      "kind": "single_species_variant",
-      "species": [
-        "wolf"
-      ],
-      "source": "wolf_002.mp3",
-      "variant": "slowed",
-      "duration_seconds": 9.288
-    },
-    "wolf_speeded.wav": {
-      "kind": "single_species_variant",
-      "species": [
-        "wolf"
-      ],
-      "source": "wolf_004.mp3",
-      "variant": "speeded",
-      "duration_seconds": 3.418
-    },
-    "wolf_toned.wav": {
-      "kind": "single_species_variant",
-      "species": [
-        "wolf"
-      ],
-      "source": "wolf_004.mp3",
-      "variant": "toned",
-      "duration_seconds": 4.2725
-    },
     "multi_nonoverlapping_01.wav": {
       "kind": "non_overlapping_concatenation",
       "species": [
         "gunshot",
-        "wolf",
-        "owl"
+        "frog",
+        "cow"
       ],
       "events": [
         {
@@ -890,16 +818,16 @@
           "end_seconds": 0.4876
         },
         {
-          "species": "wolf",
-          "source": "wolf_003.mp3",
+          "species": "frog",
+          "source": "frog_005.mp3",
           "start_seconds": 0.4876,
-          "end_seconds": 8.4521
+          "end_seconds": 8.4985
         },
         {
-          "species": "owl",
-          "source": "owl_002.mp3",
-          "start_seconds": 8.4521,
-          "end_seconds": 10.9134
+          "species": "cow",
+          "source": "cow_003.mp3",
+          "start_seconds": 8.4985,
+          "end_seconds": 9.822
         }
       ]
     },
@@ -907,111 +835,111 @@
       "kind": "non_overlapping_concatenation",
       "species": [
         "dog",
-        "owl",
-        "rooster"
+        "horse",
+        "gunshot"
       ],
       "events": [
         {
           "species": "dog",
-          "source": "dog_003.mp3",
+          "source": "dog_004.mp3",
           "start_seconds": 0.0,
-          "end_seconds": 0.743
+          "end_seconds": 4.9923
         },
         {
-          "species": "owl",
-          "source": "owl_005.mp3",
-          "start_seconds": 0.743,
-          "end_seconds": 5.4102
+          "species": "horse",
+          "source": "horse_002.mp3",
+          "start_seconds": 4.9923,
+          "end_seconds": 12.7478
         },
         {
-          "species": "rooster",
-          "source": "rooster_004.mp3",
-          "start_seconds": 5.4102,
-          "end_seconds": 11.9118
+          "species": "gunshot",
+          "source": "gunshot_003.mp3",
+          "start_seconds": 12.7478,
+          "end_seconds": 13.8159
         }
       ]
     },
     "multi_nonoverlapping_03.wav": {
       "kind": "non_overlapping_concatenation",
       "species": [
-        "roaring",
-        "gunshot",
-        "goat"
+        "crow",
+        "dog",
+        "owl"
       ],
       "events": [
         {
-          "species": "roaring",
-          "source": "roaring_cat_002.mp3",
+          "species": "crow",
+          "source": "crow_005.mp3",
           "start_seconds": 0.0,
-          "end_seconds": 2.5774
+          "end_seconds": 7.3607
         },
         {
-          "species": "gunshot",
-          "source": "gunshot_002.mp3",
-          "start_seconds": 2.5774,
-          "end_seconds": 3.065
+          "species": "dog",
+          "source": "dog_003.mp3",
+          "start_seconds": 7.3607,
+          "end_seconds": 8.1038
         },
         {
-          "species": "goat",
-          "source": "goat_005.mp3",
-          "start_seconds": 3.065,
-          "end_seconds": 7.3143
+          "species": "owl",
+          "source": "owl_005.mp3",
+          "start_seconds": 8.1038,
+          "end_seconds": 12.771
         }
       ]
     },
     "multi_nonoverlapping_04.wav": {
       "kind": "non_overlapping_concatenation",
       "species": [
-        "horse",
-        "cow",
-        "cat"
+        "gunshot",
+        "roaring-cat",
+        "rooster"
       ],
       "events": [
         {
-          "species": "horse",
-          "source": "horse_001.mp3",
+          "species": "gunshot",
+          "source": "gunshot_003.mp3",
           "start_seconds": 0.0,
-          "end_seconds": 2.0898
+          "end_seconds": 1.0681
         },
         {
-          "species": "cow",
-          "source": "cow_002.mp3",
-          "start_seconds": 2.0898,
-          "end_seconds": 9.1022
+          "species": "roaring-cat",
+          "source": "roaring-cat_002.mp3",
+          "start_seconds": 1.0681,
+          "end_seconds": 3.6223
         },
         {
-          "species": "cat",
-          "source": "cat_002.mp3",
-          "start_seconds": 9.1022,
-          "end_seconds": 10.9366
+          "species": "rooster",
+          "source": "rooster_002.mp3",
+          "start_seconds": 3.6223,
+          "end_seconds": 5.5263
         }
       ]
     },
     "multi_nonoverlapping_05.wav": {
       "kind": "non_overlapping_concatenation",
       "species": [
-        "rooster",
-        "gunshot",
-        "roaring"
+        "owl",
+        "horse",
+        "cow"
       ],
       "events": [
         {
-          "species": "rooster",
-          "source": "rooster_001.mp3",
+          "species": "owl",
+          "source": "owl_001.mp3",
           "start_seconds": 0.0,
-          "end_seconds": 2.3917
+          "end_seconds": 3.2276
         },
         {
-          "species": "gunshot",
-          "source": "gunshot_004.mp3",
-          "start_seconds": 2.3917,
-          "end_seconds": 4.4582
+          "species": "horse",
+          "source": "horse_001.mp3",
+          "start_seconds": 3.2276,
+          "end_seconds": 5.3174
         },
         {
-          "species": "roaring",
-          "source": "roaring_cat_004.mp3",
-          "start_seconds": 4.4582,
-          "end_seconds": 6.9195
+          "species": "cow",
+          "source": "cow_002.mp3",
+          "start_seconds": 5.3174,
+          "end_seconds": 12.3066
         }
       ]
     },
@@ -1019,139 +947,139 @@
       "kind": "overlapping_mix",
       "species": [
         "gunshot",
-        "rooster",
-        "owl"
+        "crow",
+        "horse"
       ],
       "events": [
         {
           "species": "gunshot",
           "source": "gunshot_005.mp3",
-          "start_seconds": 0.1823,
-          "end_seconds": 1.8309
+          "start_seconds": 0.5904,
+          "end_seconds": 2.239
         },
         {
-          "species": "rooster",
-          "source": "rooster_003.mp3",
-          "start_seconds": 0.4712,
-          "end_seconds": 2.3984
+          "species": "crow",
+          "source": "crow_001.mp3",
+          "start_seconds": 0.1787,
+          "end_seconds": 3.4527
         },
         {
-          "species": "owl",
-          "source": "owl_005.mp3",
-          "start_seconds": 0.034,
-          "end_seconds": 4.7012
+          "species": "horse",
+          "source": "horse_004.mp3",
+          "start_seconds": 0.1471,
+          "end_seconds": 1.4706
         }
       ]
     },
     "multi_overlapping_02.wav": {
       "kind": "overlapping_mix",
       "species": [
-        "cat",
-        "rooster",
-        "cow"
+        "gunshot",
+        "roaring-cat",
+        "horse"
       ],
       "events": [
         {
-          "species": "cat",
-          "source": "cat_005.mp3",
-          "start_seconds": 0.2573,
-          "end_seconds": 3.2759
+          "species": "gunshot",
+          "source": "gunshot_005.mp3",
+          "start_seconds": 0.8146,
+          "end_seconds": 2.4632
         },
         {
-          "species": "rooster",
-          "source": "rooster_003.mp3",
-          "start_seconds": 0.4722,
-          "end_seconds": 2.3994
+          "species": "roaring-cat",
+          "source": "roaring-cat_003.mp3",
+          "start_seconds": 0.0111,
+          "end_seconds": 12.0535
         },
         {
-          "species": "cow",
-          "source": "cow_003.mp3",
-          "start_seconds": 0.1183,
-          "end_seconds": 1.4419
+          "species": "horse",
+          "source": "horse_005.mp3",
+          "start_seconds": 0.455,
+          "end_seconds": 7.6532
         }
       ]
     },
     "multi_overlapping_03.wav": {
       "kind": "overlapping_mix",
       "species": [
+        "cat",
         "cow",
-        "frog",
-        "gunshot"
+        "owl"
       ],
       "events": [
         {
+          "species": "cat",
+          "source": "cat_003.mp3",
+          "start_seconds": 0.5777,
+          "end_seconds": 11.9091
+        },
+        {
           "species": "cow",
-          "source": "cow_002.mp3",
-          "start_seconds": 0.0913,
-          "end_seconds": 7.1038
+          "source": "cow_003.mp3",
+          "start_seconds": 0.3985,
+          "end_seconds": 1.722
         },
         {
-          "species": "frog",
-          "source": "frog_004.mp3",
-          "start_seconds": 0.0187,
-          "end_seconds": 8.0993
-        },
-        {
-          "species": "gunshot",
-          "source": "gunshot_001.mp3",
-          "start_seconds": 0.2242,
-          "end_seconds": 1.0137
+          "species": "owl",
+          "source": "owl_001.mp3",
+          "start_seconds": 0.0504,
+          "end_seconds": 3.278
         }
       ]
     },
     "multi_overlapping_04.wav": {
       "kind": "overlapping_mix",
       "species": [
-        "wolf",
         "frog",
-        "owl"
+        "gunshot",
+        "crow"
       ],
       "events": [
         {
-          "species": "wolf",
-          "source": "wolf_002.mp3",
-          "start_seconds": 1.5446,
-          "end_seconds": 8.975
-        },
-        {
           "species": "frog",
-          "source": "frog_005.mp3",
-          "start_seconds": 0.8096,
-          "end_seconds": 8.8205
+          "source": "frog_004.mp3",
+          "start_seconds": 0.1793,
+          "end_seconds": 8.2598
         },
         {
-          "species": "owl",
-          "source": "owl_001.mp3",
-          "start_seconds": 1.4395,
-          "end_seconds": 4.6671
+          "species": "gunshot",
+          "source": "gunshot_001.mp3",
+          "start_seconds": 0.2811,
+          "end_seconds": 1.0706
+        },
+        {
+          "species": "crow",
+          "source": "crow_003.mp3",
+          "start_seconds": 0.0187,
+          "end_seconds": 1.8066
         }
       ]
     },
     "multi_overlapping_05.wav": {
       "kind": "overlapping_mix",
       "species": [
-        "rooster",
-        "frog",
-        "owl"
+        "owl",
+        "crow",
+        "rooster"
       ],
       "events": [
         {
+          "species": "owl",
+          "source": "owl_001.mp3",
+          "start_seconds": 0.2599,
+          "end_seconds": 3.4874
+        },
+        {
+          "species": "crow",
+          "source": "crow_003.mp3",
+          "start_seconds": 0.0769,
+          "end_seconds": 1.8648
+        },
+        {
           "species": "rooster",
           "source": "rooster_005.mp3",
-          "start_seconds": 0.549,
-          "end_seconds": 2.0351
-        },
-        {
-          "species": "frog",
-          "source": "frog_002.mp3",
-          "start_seconds": 0.2581,
-          "end_seconds": 6.0167
-        },
-        {
-          "species": "owl",
-          "source": "owl_002.mp3",
-          "start_seconds": 0.3346,
-          "end_seconds": 2.796
+          "start_seconds": 0.1184,
+          "end_seconds": 1.6044
         }
       ]
     }
@@ -1229,14 +1157,14 @@
     "owl_slowed.wav",
     "owl_speeded.wav",
     "owl_toned.wav",
-    "roaring_original.wav",
-    "roaring_padded_silence.wav",
-    "roaring_noised.wav",
-    "roaring_pitch_increased.wav",
-    "roaring_pitch_decreased.wav",
-    "roaring_slowed.wav",
-    "roaring_speeded.wav",
-    "roaring_toned.wav",
+    "roaring-cat_original.wav",
+    "roaring-cat_padded_silence.wav",
+    "roaring-cat_noised.wav",
+    "roaring-cat_pitch_increased.wav",
+    "roaring-cat_pitch_decreased.wav",
+    "roaring-cat_slowed.wav",
+    "roaring-cat_speeded.wav",
+    "roaring-cat_toned.wav",
     "rooster_original.wav",
     "rooster_padded_silence.wav",
     "rooster_noised.wav",
@@ -1245,14 +1173,6 @@
     "rooster_slowed.wav",
     "rooster_speeded.wav",
     "rooster_toned.wav",
-    "wolf_original.wav",
-    "wolf_padded_silence.wav",
-    "wolf_noised.wav",
-    "wolf_pitch_increased.wav",
-    "wolf_pitch_decreased.wav",
-    "wolf_slowed.wav",
-    "wolf_speeded.wav",
-    "wolf_toned.wav",
     "multi_nonoverlapping_01.wav",
     "multi_nonoverlapping_02.wav",
     "multi_nonoverlapping_03.wav",

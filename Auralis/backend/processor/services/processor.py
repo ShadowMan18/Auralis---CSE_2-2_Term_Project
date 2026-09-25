@@ -43,6 +43,7 @@ import logging
 import os
 import tempfile
 import threading
+from io import BytesIO
 from pathlib import Path
 
 import librosa
@@ -55,7 +56,10 @@ from processor.audio_processing.audio_matcher import AudioMatcher
 from processor.audio_processing import pipeline_config as cfg
 from processor.audio_processing import ml_config as ml_cfg
 from processor.audio_processing import pann_config as pann_cfg
-from processor.audio_processing.pann_label_mapping import map_pann_scores
+from processor.audio_processing.pann_label_mapping import (
+    MAPPED_ANIMAL_CATEGORIES,
+    map_pann_scores,
+)
 from processor.audio_processing.resample import Resample
 
 logger = logging.getLogger(__name__)
@@ -96,6 +100,41 @@ CNN_WINDOW_HOP_SECONDS = 1.5
 # Only the first CNN_MAX_SECONDS of an upload are analysed (bounds memory/CPU).
 CNN_MAX_SECONDS = 120
 CNN_BATCH_SIZE = 64
+
+# The client combines the three independently-calibrated scores, so every
+# path must report the same candidate vocabulary. PANN may also emit generic
+# AudioSet tags (for example "Rain") which are useful for diagnostics but are
+# not animal candidates and must not enter the ensemble.
+ENSEMBLE_CONFIDENCE_THRESHOLD = 0.20
+
+
+class _ReplayableUpload:
+    """Small FileStorage-compatible copy of one request upload.
+
+    Each inference path consumes the stream differently: DSP decodes from a
+    file object while CNN/PANN save it before decoding. A fresh replayable
+    instance for each path prevents the first model from leaving the other
+    models at EOF, without asking the browser to upload the recording three
+    times.
+    """
+
+    def __init__(self, filename, payload):
+        self.filename = filename
+        self._payload = payload
+        self.stream = BytesIO(payload)
+
+    def seek(self, *args, **kwargs):
+        return self.stream.seek(*args, **kwargs)
+
+    def read(self, *args, **kwargs):
+        return self.stream.read(*args, **kwargs)
+
+    def tell(self):
+        return self.stream.tell()
+
+    def save(self, destination):
+        """Match the FileStorage.save subset used by the CNN/PANN paths."""
+        destination.write(self._payload)
 
 
 def _augmented_waveforms(waveform, sample_rate, species_id="?"):
@@ -634,4 +673,129 @@ def process_pann_sample(sample, top_k=None):
         "species": [item["species"] for item in predictions],
         "confidence": [item["confidence"] for item in predictions],
         "zero_shot": True,
+    }, 200
+
+
+# --- Ensemble upload path ---------------------------------------------------
+
+def _read_upload_payload(sample):
+    """Read an upload once and restore its request stream when possible."""
+    source = getattr(sample, "stream", sample)
+    try:
+        source.seek(0)
+    except (AttributeError, OSError):
+        pass
+    payload = source.read()
+    try:
+        source.seek(0)
+    except (AttributeError, OSError):
+        pass
+    return payload
+
+
+def _threshold_predictions(predictions, allowed_species=None):
+    """Return the stable API shape and enforce the common ensemble cutoff."""
+    best_scores = {}
+    for prediction in predictions or []:
+        species = str(prediction.get("species", "")).strip()
+        try:
+            score = float(prediction.get("confidence", 0.0))
+        except (TypeError, ValueError):
+            continue
+        if not species or score <= ENSEMBLE_CONFIDENCE_THRESHOLD:
+            continue
+        if allowed_species is not None and species not in allowed_species:
+            continue
+        best_scores[species] = max(best_scores.get(species, 0.0), score)
+
+    return [
+        {"species": species, "confidence": round(score, 6)}
+        for species, score in sorted(best_scores.items(), key=lambda item: (-item[1], item[0]))
+    ]
+
+
+def _flat_scores_to_predictions(result):
+    """Adapt the original DSP response to the common prediction shape."""
+    return [
+        {"species": species, "confidence": score}
+        for species, score in zip(result.get("species", []), result.get("confidence", []))
+    ]
+
+
+def process_ensemble_sample(sample):
+    """Run one uploaded recording through DSP, the trained CNN, and PANN.
+
+    The endpoint deliberately returns *unweighted* per-path predictions. The
+    frontend owns the requested final score calculation:
+
+        0.3 * pann + 0.4 * cnn + 0.3 * dsp
+
+    A path failing to initialise (for example, a missing local CNN checkpoint)
+    is reported in ``path_errors`` while the other available paths still return
+    their findings. That makes deployment problems visible without throwing
+    away a valid result from the remaining models.
+    """
+    if sample is None or not sample.filename:
+        return {"error": "No file uploaded. Expected a 'sample' field in multipart/form-data."}, 400
+
+    extension = Path(sample.filename).suffix.lower()
+    if extension not in ALLOWED_EXTENSIONS:
+        return {
+            "error": f"Unsupported file type '{extension}'. Allowed: {sorted(ALLOWED_EXTENSIONS)}"
+        }, 415
+
+    try:
+        payload = _read_upload_payload(sample)
+    except Exception:
+        logger.exception("Could not read uploaded sample '%s'", sample.filename)
+        return {"error": "Failed to read the uploaded audio file."}, 422
+    if not payload:
+        return {"error": "The uploaded audio file is empty."}, 422
+
+    # Keep all path calls in one place so their input and common post-filtering
+    # cannot drift. `top_k=50` is safely above the current class counts and
+    # avoids silently dropping an animal that is above the requested threshold.
+    calls = {
+        "dsp": lambda upload: process_sample(upload),
+        "cnn": lambda upload: process_cnn_sample(upload, top_k=50),
+        "pann": lambda upload: process_pann_sample(upload, top_k=50),
+    }
+    paths = {name: [] for name in calls}
+    path_errors = {}
+    successful_paths = 0
+
+    for name, run_path in calls.items():
+        try:
+            result, status = run_path(_ReplayableUpload(sample.filename, payload))
+        except Exception:
+            logger.exception("Unexpected %s failure for '%s'", name.upper(), sample.filename)
+            result, status = {"error": "Unexpected processing failure."}, 500
+
+        if status != 200:
+            path_errors[name] = result.get("error", f"{name.upper()} processing failed.")
+            continue
+
+        successful_paths += 1
+        raw_predictions = (
+            _flat_scores_to_predictions(result)
+            if name == "dsp"
+            else result.get("predictions", [])
+        )
+        # PANN is multi-label AudioSet tagging. Only labels explicitly mapped
+        # to Auralis animal categories can be combined with DSP/CNN classes.
+        allowed_species = MAPPED_ANIMAL_CATEGORIES if name == "pann" else None
+        paths[name] = _threshold_predictions(raw_predictions, allowed_species)
+
+    if successful_paths == 0:
+        return {
+            "error": "None of the detection paths is currently available.",
+            "paths": paths,
+            "path_errors": path_errors,
+            "threshold": ENSEMBLE_CONFIDENCE_THRESHOLD,
+        }, 503
+
+    return {
+        "paths": paths,
+        "path_errors": path_errors,
+        "threshold": ENSEMBLE_CONFIDENCE_THRESHOLD,
     }, 200

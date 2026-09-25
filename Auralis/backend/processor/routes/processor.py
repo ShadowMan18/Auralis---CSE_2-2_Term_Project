@@ -21,14 +21,6 @@ def health():
 @jwt_required()
 def process_sample_route():
     sample = request.files.get('sample')
-    # latitude/longitude/month are optional as a group. A supplied region
-    # should be resolved to coordinates by the client before this request.
-    result, status = processor.process_cnn_sample(
-        sample,
-        lat=request.form.get('lat', request.form.get('latitude')),
-        lon=request.form.get('lon', request.form.get('longitude')),
-        month=request.form.get('month'),
-        top_k=request.form.get('top_k', 8),
-    )
+    result, status = processor.process_ensemble_sample(sample)
     
     return jsonify(result), status
