@@ -27,6 +27,34 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
+
+def _find_backend_root(start: Path) -> Path:
+    """Python puts the SCRIPT's own folder on sys.path, not your current
+    working directory -- so running this from audio_processing\\, or even
+    from backend\\ with a plain `python test.py`, never makes
+    `processor.services` importable on its own. Walk up from this file's
+    location until we find the directory that actually contains the
+    `processor` package and use that, regardless of where the script
+    lives or where you ran it from.
+
+    Checks for the directory (processor/services/) rather than an
+    __init__.py file, since this project's `processor` package has no
+    __init__.py -- it relies on Python's implicit namespace packages,
+    same reason the relative imports elsewhere (e.g. `from .resample
+    import Resample`) work without one."""
+    for candidate in (start, *start.parents):
+        if (candidate / "processor" / "services").is_dir():
+            return candidate
+    raise RuntimeError(
+        "Could not find the backend root (a folder containing "
+        f"processor/services/) by walking up from {start}. If this "
+        "script isn't somewhere inside the backend/ tree, hardcode the "
+        "backend path here instead."
+    )
+
+
+sys.path.insert(0, str(_find_backend_root(Path(__file__).resolve().parent)))
+
 # Adjust this import if your run config resolves packages differently.
 from processor.services import processor as detector
 
