@@ -28,8 +28,8 @@ the original .m4a is moved into the backup folder (not left in
 two separate recordings of the same animal.
 
 Run this BEFORE dataset_producer.py, especially the first time you add new
-recordings. Standalone: only needs ml_config.py alongside it, no other
-pipeline files.
+recordings. Standalone: only needs ml_config.py and silence_trim.py alongside
+it, no other pipeline files.
 
 Per-file warnings:
   - "NOTHING KEPT": the whole file registered as silence at this threshold
@@ -52,7 +52,20 @@ import numpy as np
 import librosa
 import soundfile as sf
 
-import ml_config as cfg
+try:  # Allow both ``python trim_references.py`` and package imports.
+    from . import ml_config as cfg
+    from .silence_trim import (
+        DEFAULT_TRIM_TOP_DB,
+        SILENCE_PEAK_EPSILON,
+        trim_leading_trailing_silence,
+    )
+except ImportError:
+    import ml_config as cfg
+    from silence_trim import (
+        DEFAULT_TRIM_TOP_DB,
+        SILENCE_PEAK_EPSILON,
+        trim_leading_trailing_silence,
+    )
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
@@ -61,12 +74,12 @@ logger = logging.getLogger(__name__)
 # _class_label_for from dataset_producer.py, on the theory that if those ever changed
 # there they'd automatically stay in sync here too. In practice that just meant this
 # script broke with an ImportError whenever the two files' versions drifted even
-# slightly apart. These four things change rarely and duplicating them is cheap, so
-# they're defined here directly -- this file now only needs ml_config.py (which is
-# far more stable) to run. If you deliberately change ALLOWED_EXTENSIONS or the
-# silence-threshold default in dataset_producer.py, update the copies below too.
+# slightly apart. These settings change rarely; the actual trim operation and
+# threshold now come from silence_trim.py so online preprocessing and reference
+# preparation cannot drift apart. If you deliberately change ALLOWED_EXTENSIONS
+# or the silence-threshold default in dataset_producer.py, update the copies below too.
 ALLOWED_EXTENSIONS = {".mp3", ".wav", ".flac", ".ogg", ".m4a"}
-TRIM_TOP_DB = 35.0  # dB below peak; must match dataset_producer.py's default to trim consistently
+TRIM_TOP_DB = DEFAULT_TRIM_TOP_DB
 SR = cfg.SAMPLE_RATE
 
 
@@ -100,11 +113,11 @@ def trim_one(path: Path, backup_dir: Path, trim_top_db: float, force: bool):
     y, _sr = librosa.load(str(source), sr=SR, mono=True)
     orig_secs = len(y) / SR
 
-    if len(y) == 0 or float(np.max(np.abs(y))) < 1e-4:
+    if len(y) == 0 or float(np.max(np.abs(y))) < SILENCE_PEAK_EPSILON:
         return {"name": path.name, "orig_secs": orig_secs, "kept_secs": 0.0, "removed_frac": 1.0,
                "status": "NOTHING KEPT: file is silent at any threshold -- check it's the right file"}
 
-    trimmed, index = librosa.effects.trim(y, top_db=trim_top_db)
+    trimmed, index = trim_leading_trailing_silence(y, top_db=trim_top_db)
     kept_secs = len(trimmed) / SR
     removed_frac = 1.0 - (kept_secs / orig_secs) if orig_secs > 0 else 1.0
     lead_secs, trail_secs = index[0] / SR, (len(y) - index[1]) / SR

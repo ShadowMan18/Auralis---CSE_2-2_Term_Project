@@ -1,0 +1,112 @@
+{
+  "seed": 0,
+  "variants_per_class": 200,
+  "val_fraction": 0.15,
+  "fold": null,
+  "classes": {
+    "cat": {
+      "val_mode": "source",
+      "fold": null,
+      "train_sources": [
+        "cat_005.mp3",
+        "cat_004.mp3",
+        "cat_001.mp3",
+        "cat_002.mp3"
+      ],
+      "val_sources": [
+        "cat_003.mp3"
+      ]
+    },
+    "cow": {
+      "val_mode": "source",
+      "fold": null,
+      "train_sources": [
+        "cow_002.mp3",
+        "cow_003.mp3",
+        "cow_001.mp3",
+        "cow_004.mp3"
+      ],
+      "val_sources": [
+        "cow_005.mp3"
+      ]
+    },
+    "crow": {
+      "val_mode": "source",
+      "fold": null,
+      "train_sources": [
+        "crow_003.mp3",
+        "crow_004.mp3",
+        "crow_005.mp3",
+        "crow_002.mp3"
+      ],
+      "val_sources": [
+        "crow_001.mp3"
+      ]
+    },
+    "dog": {
+      "val_mode": "source",
+      "fold": null,
+      "train_sources": [
+        "dog_003.mp3",
+        "dog_001.mp3",
+        "dog_002.mp3",
+        "dog_005.mp3"
+      ],
+      "val_sources": [
+        "dog_004.mp3"
+      ]
+    },
+    "goat": {
+      "val_mode": "source",
+      "fold": null,
+      "train_sources": [
+        "goat_003.mp3",
+        "goat_002.mp3",
+        "goat_004.mp3",
+        "goat_001.mp3"
+      ],
+      "val_sources": [
+        "goat_005.mp3"
+      ]
+    },
+    "horse": {
+      "val_mode": "source",
+      "fold": null,
+      "train_sources": [
+        "horse_001.mp3",
+        "horse_004.mp3",
+        "horse_003.mp3",
+        "horse_002.mp3"
+      ],
+      "val_sources": [
+        "horse_005.mp3"
+      ]
+    },
+    "monkey": {
+      "val_mode": "source",
+      "fold": null,
+      "train_sources": [
+        "monkey_005.mp3",
+        "monkey_004.mp3",
+        "monkey_001.mp3",
+        "monkey_002.mp3"
+      ],
+      "val_sources": [
+        "monkey_003.mp3"
+      ]
+    },
+    "rooster": {
+      "val_mode": "source",
+      "fold": null,
+      "train_sources": [
+        "rooster_003.mp3",
+        "rooster_001.mp3",
+        "rooster_002.mp3",
+        "rooster_005.mp3"
+      ],
+      "val_sources": [
+        "rooster_004.mp3"
+      ]
+    }
+  }
+}
