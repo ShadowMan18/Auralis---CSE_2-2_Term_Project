@@ -16,4 +16,5 @@ soundfile
 librosa
 torch
 torchvision
+panns-inference
 requests

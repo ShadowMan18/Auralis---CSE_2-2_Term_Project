@@ -101,9 +101,9 @@ TEMPO_AUGMENT_RATES = (1.0, 1.15)        # rate multiplier (1.0 = unchanged)
 # variants under one ref_id at build time.
 VARIANT_SEPARATOR = "::"
 
-# Require several hashes to agree at one time offset before treating a
-# reference as a match. A single common hash is not meaningful evidence.
-MIN_RAW_MATCH_COUNT = 3
+# Keep the original low match-count floor so pitch-shifted and time-stretched
+# variants are not discarded before their reference augmentations can vote.
+MIN_RAW_MATCH_COUNT = 5
 
 # --- Detection threshold ------------------------------------------------
 

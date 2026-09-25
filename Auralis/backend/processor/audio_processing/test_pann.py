@@ -1,30 +1,29 @@
 """
-test_dsp.py — Batch-run the pure-DSP (AudioMatcher fingerprint) detection
-path over every sample file in samples/test and chart the confidence
-scores, without re-running inference each time you want to look at the
-chart.
+test_pann.py — Batch-run the zero-shot PANN pathway over every sample file
+in samples/test and chart the top-1 confidence per file, mirroring
+test.py's shape exactly (same SAMPLES_DIR convention, same cache-then-plot
+flow) but calling process_pann_sample instead of process_cnn_sample.
 
-This exercises process_sample() (the fingerprint-matcher path), NOT
-process_cnn_sample() (which is what test.py exercises and what the live
-route currently calls) -- use this one specifically to evaluate the DSP
-branch on its own, independent of the CNN.
+Since this pathway is zero-shot on generic AudioSet tags, guess_true_label
+matching top-1 against the filename's species prefix will mostly show
+"incorrect" (red) bars -- that's expected and not a bug: a "cat.wav" file
+scoring high on "Cat" is a genuine hit, but reference filenames using our
+own species taxonomy (e.g. "howler_001.wav") will rarely have an exact
+AudioSet label match. Read the printed top predictions per file, not just
+the color-coding, when judging this pathway's output.
 
 Usage
 -----
-    python test_dsp.py                  # run inference on every file, cache to test_dsp_results.json, then plot
-    python test_dsp.py --replot         # skip inference, just re-plot from the existing cache
-    python test_dsp.py --threshold 0.05 # override the threshold line drawn on the chart
+    python test_pann.py                  # run inference, cache to test_pann_results.json, then plot
+    python test_pann.py --replot         # skip inference, just re-plot from the existing cache
+    python test_pann.py --top-k 10       # keep more than the top prediction per file
+    python test_pann.py --threshold 0.2  # override the threshold line drawn on the chart
 
-Run this from the `backend/` directory (the one containing the
-`processor` package) so `from processor.services import processor`
-resolves the same way it does for routes.py.
-
-NOTE: the first call builds the AudioMatcher reference library from
-samples/references (with the full pitch/tempo augmentation grid), which
-can take a while -- that's expected, and it's cached in-process for the
-rest of the run (see _get_matcher() in processor.py).
+Run this from the `backend/` directory, same as test.py -- see that
+file's docstring for the import-path reasoning this script reuses as-is.
 
 Requires matplotlib: pip install matplotlib
+Requires panns_inference: pip install panns_inference
 """
 
 import argparse
@@ -37,19 +36,8 @@ from matplotlib.patches import Patch
 
 
 def _find_backend_root(start: Path) -> Path:
-    """Python puts the SCRIPT's own folder on sys.path, not your current
-    working directory -- so running this from audio_processing\\, or even
-    from backend\\ with a plain `python test_dsp.py`, never makes
-    `processor.services` importable on its own. Walk up from this file's
-    location until we find the directory that actually contains the
-    `processor` package and use that, regardless of where the script
-    lives or where you ran it from.
-
-    Checks for the directory (processor/services/) rather than an
-    __init__.py file, since this project's `processor` package has no
-    __init__.py -- it relies on Python's implicit namespace packages,
-    same reason the relative imports elsewhere (e.g. `from .resample
-    import Resample`) work without one."""
+    """Identical to test.py's helper of the same name -- see that file's
+    docstring for why this walk-up is needed instead of assuming cwd."""
     for candidate in (start, *start.parents):
         if (candidate / "processor" / "services").is_dir():
             return candidate
@@ -63,46 +51,29 @@ def _find_backend_root(start: Path) -> Path:
 
 sys.path.insert(0, str(_find_backend_root(Path(__file__).resolve().parent)))
 
-# Adjust this import if your run config resolves packages differently.
 from processor.services import processor as detector
 
 SAMPLES_DIR = Path(__file__).resolve().parent / "samples" / "test"
 MANIFEST_PATH = SAMPLES_DIR / "generated_manifest.json"
-RESULTS_CACHE = Path(__file__).parent / "test_dsp_results.json"
+RESULTS_CACHE = Path(__file__).parent / "test_pann_results.json"
 ALLOWED_EXTENSIONS = detector.ALLOWED_EXTENSIONS
 
 
 class LocalFile:
-    """Minimal duck-type of werkzeug's FileStorage -- just enough for
-    process_sample()'s `sample.filename` / stream-based reads, so a plain
-    local path can be fed in instead of a real upload."""
+    """Identical duck-type to test.py's LocalFile -- see that file."""
 
     def __init__(self, path: Path):
         self.filename = path.name
         self._path = path
-        self._fh = None
 
-    # AudioPreprocessor.process() -> AudioDecoder.decode() calls
-    # file_obj.seek(0) then reads from it directly (no .save() call, since
-    # process_sample doesn't route through a temp file the way the CNN
-    # path does) -- so this shim needs to behave like an actual open file.
-    def __getattr__(self, name):
-        if self._fh is None:
-            self._fh = open(self._path, "rb")
-        return getattr(self._fh, name)
+    def save(self, dst):
+        dst.write(self._path.read_bytes())
 
 
-def guess_true_label(filename: str) -> str:
-    """Infer a single-species label from the test filename.
-
-    Test clips use names such as ``sample_cat2`` while references use
-    ``cat_002``. A mixed-species clip has no single top-1 ground-truth
-    label, so return None for it and leave it out of correctness coloring.
-    """
+def guess_true_label(filename: str):
+    """Best-effort single-animal label for files absent from the manifest."""
     stem = Path(filename).stem
-    known_species = {
-        "cat", "cow", "crow", "dog", "goat", "horse", "monkey", "rooster"
-    }
+    known_species = {"cat", "cow", "crow", "dog", "goat", "horse", "monkey", "rooster", "frog"}
     tokens = stem.lower().replace("-", "_").replace(" ", "_").split("_")
     labels = [
         species for species in known_species
@@ -112,7 +83,7 @@ def guess_true_label(filename: str) -> str:
     return labels[0] if len(labels) == 1 else None
 
 
-def run_inference():
+def run_inference(top_k=10):
     if not SAMPLES_DIR.exists():
         sys.exit(f"Samples folder not found: {SAMPLES_DIR}")
 
@@ -126,7 +97,7 @@ def run_inference():
     results = []
     for path in files:
         print(f"Processing {path.name} ...")
-        result, status = detector.process_sample(LocalFile(path))
+        result, status = detector.process_pann_sample(LocalFile(path), top_k=top_k)
         if status != 200:
             print(f"  -> error ({status}): {result.get('error')}")
             results.append({
@@ -137,13 +108,7 @@ def run_inference():
             })
             continue
 
-        # process_sample returns parallel lists, already sorted by
-        # descending score -- reshape into the same {species, confidence}
-        # dict-list shape test.py uses, so plot_results below is identical.
-        predictions = [
-            {"species": species, "confidence": confidence}
-            for species, confidence in zip(result.get("species", []), result.get("confidence", []))
-        ]
+        predictions = result.get("predictions", [])
         print(f"  -> {predictions}")
         results.append({
             "file": path.name,
@@ -164,7 +129,7 @@ def load_cached_results():
 
 
 def _sample_metadata(results):
-    """Return manifest metadata keyed by filename, with filename fallbacks."""
+    """Read desired species/sample kinds from the generator manifest."""
     manifest_samples = {}
     if MANIFEST_PATH.exists():
         manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
@@ -183,17 +148,15 @@ def _sample_metadata(results):
 
         label = result.get("true_label") or guess_true_label(filename)
         if label:
-            metadata[filename] = {
-                "kind": "single_species_variant",
-                "species": [label],
-            }
+            metadata[filename] = {"kind": "single_species_variant", "species": [label]}
         else:
             metadata[filename] = {"kind": "unclassified", "species": []}
     return metadata
 
 
 def plot_results(results, threshold=None):
-    threshold = threshold if threshold is not None else detector.CONFIDENCE_THRESHOLD
+    from processor.audio_processing import pann_config as pann_cfg
+    threshold = threshold if threshold is not None else pann_cfg.MIN_CONFIDENCE
     metadata = _sample_metadata(results)
     singles, non_overlapping, overlapping = [], [], []
     for result in results:
@@ -205,8 +168,8 @@ def plot_results(results, threshold=None):
         elif kind == "overlapping_mix":
             overlapping.append(result)
 
-    total_panels = max(len(singles), len(non_overlapping) * 2, len(overlapping) * 2, 1)
-    fig = plt.figure(figsize=(max(18, total_panels * 0.48), 13), facecolor="#f7f8fc")
+    panel_width = max(len(singles), 2 * len(non_overlapping), 2 * len(overlapping), 1)
+    fig = plt.figure(figsize=(max(18, panel_width * 0.48), 13), facecolor="#f7f8fc")
     grid = fig.add_gridspec(2, 2, height_ratios=(1.35, 1), hspace=0.75, wspace=0.16)
     single_ax = fig.add_subplot(grid[0, :])
     nonoverlap_ax = fig.add_subplot(grid[1, 0])
@@ -215,47 +178,38 @@ def plot_results(results, threshold=None):
     def style_axis(ax, title):
         ax.set_facecolor("white")
         ax.set_title(title, fontsize=13, fontweight="bold", loc="left", pad=12)
-        ax.set_ylim(0, 1.12)
         ax.set_ylabel("Confidence")
         ax.grid(axis="y", alpha=0.2)
         ax.set_axisbelow(True)
         for spine in ("top", "right"):
             ax.spines[spine].set_visible(False)
 
-    # Top panel: single-species clips use top-1 correctness coloring.
+    # Top panel: color each single-animal clip by top-1 correctness.
     style_axis(single_ax, "Single-animal samples")
-    single_scores = []
-    single_colors = []
-    single_labels = []
-    single_annotations = []
+    single_scores, single_colors, single_labels = [], [], []
     for result in singles:
-        desired = metadata[result["file"]]["species"]
-        desired_set = {str(item).casefold() for item in desired}
+        desired = {str(item).casefold() for item in metadata[result["file"]]["species"]}
         predictions = result.get("predictions", [])
-        top_prediction = predictions[0] if predictions else None
-        score = float(top_prediction["confidence"]) if top_prediction else 0.0
-        predicted = str(top_prediction["species"]).casefold() if top_prediction else ""
-        correct = predicted in desired_set
+        top = predictions[0] if predictions else None
+        score = float(top["confidence"]) if top else 0.0
+        correct = bool(top) and str(top["species"]).casefold() in desired
         single_scores.append(score)
-        single_colors.append(
-            "#31a36a" if correct else "#d76565" if top_prediction else "#aeb7c4"
-        )
+        single_colors.append("#31a36a" if correct else "#d76565" if top else "#aeb7c4")
         single_labels.append(Path(result["file"]).stem)
-        single_annotations.append(f"{score:.2f}" if top_prediction else "")
 
     x_single = list(range(len(singles)))
-    single_bars = single_ax.bar(x_single, single_scores, color=single_colors, width=0.76,
-                                edgecolor="white", linewidth=0.7)
+    bars = single_ax.bar(x_single, single_scores, color=single_colors, width=0.76,
+                         edgecolor="white", linewidth=0.7)
     single_ylim = max(1.12, max(single_scores, default=0.0) * 1.18)
     single_ax.set_ylim(0, single_ylim)
     if 0 < threshold < single_ylim:
         single_ax.axhline(threshold, color="#777f8c", linestyle="--", linewidth=1)
     single_ax.set_xticks(x_single)
     single_ax.set_xticklabels(single_labels, rotation=90, ha="center", fontsize=7)
-    for bar, annotation in zip(single_bars, single_annotations):
-        if annotation:
+    for bar, score in zip(bars, single_scores):
+        if score > 0:
             single_ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.018,
-                           annotation, ha="center", va="bottom", fontsize=6.5)
+                           f"{score:.2f}", ha="center", va="bottom", fontsize=6.5)
     single_ax.legend(handles=[
         Patch(facecolor="#31a36a", label="correct"),
         Patch(facecolor="#d76565", label="incorrect"),
@@ -301,9 +255,9 @@ def plot_results(results, threshold=None):
     plot_mixtures(nonoverlap_ax, non_overlapping, "Non-overlapping samples")
     plot_mixtures(overlap_ax, overlapping, "Overlapping samples")
 
-    fig.suptitle("Auralis DSP results", fontsize=17, fontweight="bold", y=0.99)
+    fig.suptitle("Auralis PANN results", fontsize=17, fontweight="bold", y=0.99)
     fig.subplots_adjust(top=0.91, bottom=0.16, left=0.055, right=0.99)
-    out_path = Path(__file__).parent / "test_dsp_results_chart.png"
+    out_path = Path(__file__).parent / "test_pann_results_chart.png"
     fig.savefig(out_path, dpi=150)
     print(f"Chart saved to {out_path}")
     plt.show()
@@ -313,11 +267,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--replot", action="store_true",
                          help="Skip inference; re-plot from the cached results.")
+    parser.add_argument("--top-k", type=int, default=10,
+                         help="How many predictions to keep per file (default: 10).")
     parser.add_argument("--threshold", type=float, default=None,
                          help="Override the confidence threshold line on the chart.")
     args = parser.parse_args()
 
-    results = load_cached_results() if args.replot else run_inference()
+    results = load_cached_results() if args.replot else run_inference(top_k=args.top_k)
     plot_results(results, threshold=args.threshold)
 
 
