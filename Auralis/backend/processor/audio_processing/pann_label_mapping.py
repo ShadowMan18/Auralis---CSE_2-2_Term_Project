@@ -61,10 +61,10 @@ RAW_TAG_TO_CATEGORY = {
 
     "howl":"wolf",
 
-    "vehicle":"roaring",
-    "roar":"roaring",
-    "grunt":"roaring",
-    "roaring cats (lions, tigers)": "roaring",
+    "vehicle":"roaring-cat",
+    "roar":"roaring-cat",
+    "grunt":"roaring-cat",
+    "roaring cats (lions, tigers)": "roaring-cat",
     
 
 }
@@ -91,8 +91,8 @@ CONDITIONAL_LABEL_SUPPRESSION = {
     "canidae": frozenset({"dog", "wolf"}),
     "bird": frozenset({"crow", "rooster", "owl"}),
     "bird vocalization, bird call, bird song": frozenset({"crow", "rooster", "owl"}),
-    "animal": frozenset({"roaring"}),
-    "wild animals": frozenset({"roaring"}),
+    "animal": frozenset({"roaring-cat"}),
+    "wild animals": frozenset({"roaring-cat"}),
 }
 
 IGNORED_LABELS = frozenset({
