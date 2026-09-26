@@ -1,0 +1,14 @@
+{
+  "cat": 0,
+  "cow": 1,
+  "crow": 2,
+  "dog": 3,
+  "frog": 4,
+  "goat": 5,
+  "gunshot": 6,
+  "horse": 7,
+  "owl": 8,
+  "roaring-cat": 9,
+  "rooster": 10,
+  "_background": 11
+}
