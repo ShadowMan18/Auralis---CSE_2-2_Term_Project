@@ -73,7 +73,10 @@ class LocalFile:
 def guess_true_label(filename: str):
     """Best-effort single-animal label for files absent from the manifest."""
     stem = Path(filename).stem
-    known_species = {"cat", "cow", "crow", "dog", "goat", "horse", "monkey", "rooster", "frog"}
+    known_species = {
+        "cat", "cow", "crow", "dog", "frog", "goat", "gunshot", "horse",
+        "monkey", "owl", "roaring", "rooster", "wolf",
+    }
     tokens = stem.lower().replace("-", "_").replace(" ", "_").split("_")
     labels = [
         species for species in known_species

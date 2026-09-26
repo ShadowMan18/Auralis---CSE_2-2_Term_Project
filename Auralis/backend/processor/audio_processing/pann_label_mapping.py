@@ -19,7 +19,7 @@ RAW_TAG_TO_CATEGORY = {
     "bow-wow": "dog",
     "whimper (dog)": "dog",
     "yip": "dog",
-    "canidae, dogs, wolves": "dog",
+    
 
     # Cow
     "moo": "cow",
@@ -31,6 +31,12 @@ RAW_TAG_TO_CATEGORY = {
     "neigh, whinny": "horse",
     "clip-clop": "horse",
     "crow": "crow",
+    "owl": "owl",
+    "hoot": "owl",
+    "pigeon, dove": "owl",
+    "coo": "owl",
+    "bird vocalization, bird call, bird song": "owl",
+    "wolf": "wolf",
     "frog": "frog",
     "croak": "frog",
     "chicken, rooster": "rooster",
@@ -42,13 +48,32 @@ RAW_TAG_TO_CATEGORY = {
     # Broad/uncertain farm-animal evidence. These never imply a specific
     # species; the category is suppressed when a specific farm animal wins.
     "livestock, farm animals, working animals": "farm_animals",
-    "bleat": "farm_animals",
+    "bleat": "goat",
     "sheep": "goat",
     "fowl": "farm_animals",
+
+    # Keep Canidae as a useful fallback if neither child species is found.
+    "canidae, dogs, wolves": "canidae",
+
+    "explosion":"gunshot",
+    "burst, pop":"gunshot",
+    "bang":"gunshot",
+
+    "howl":"wolf",
+
+    "vehicle":"roaring",
+    "roar":"roaring",
+    "grunt":"roaring",
+    "roaring cats (lions, tigers)": "roaring",
+    
+
 }
 
 FARM_SPECIFIC_CATEGORIES = frozenset({"cow", "goat", "horse", "rooster"})
-MAPPED_ANIMAL_CATEGORIES = frozenset(RAW_TAG_TO_CATEGORY.values())
+MAPPED_ANIMAL_CATEGORIES = frozenset({
+    "cat", "dog", "cow", "goat", "horse", "crow", "frog", "rooster",
+    "owl", "wolf", "monkey", "farm_animals",
+})
 
 # Keep these raw labels if they are the only evidence. When a mapped animal
 # category is present, they add no useful species information and are hidden.
@@ -56,7 +81,27 @@ GENERIC_LABELS_SUPPRESSED_WITH_ANIMAL_MATCH = frozenset({
     "pink noise",
     "animal",
     "domestic animals, pets",
-    "bird",
+})
+
+# These broad AudioSet labels stay visible by themselves, but add no value
+# once a more specific child category is detected. They are intentionally
+# pass-through labels rather than forced guesses (for example, Canidae alone
+# does not tell us whether the sound is a dog or a wolf).
+CONDITIONAL_LABEL_SUPPRESSION = {
+    "canidae": frozenset({"dog", "wolf"}),
+    "bird": frozenset({"crow", "rooster", "owl"}),
+    "bird vocalization, bird call, bird song": frozenset({"crow", "rooster", "owl"}),
+    "animal": frozenset({"roaring"}),
+    "wild animals": frozenset({"roaring"}),
+}
+
+IGNORED_LABELS = frozenset({
+    "music",
+    "siren",
+    "civil defense siren",
+    "silence",
+    "speech",
+    "gunshot",
 })
 
 
@@ -74,7 +119,11 @@ def map_pann_scores(raw_scores, min_confidence=0.0):
     mapped = {}
     for raw_label, score in raw_scores.items():
         original_label = str(raw_label).strip()
+        if original_label.casefold() in IGNORED_LABELS:
+            continue
         category = RAW_TAG_TO_CATEGORY.get(original_label.casefold(), original_label)
+        if category.casefold() in IGNORED_LABELS:
+            continue
         if not category:
             continue
         mapped[category] = max(mapped.get(category, 0.0), float(score))
@@ -87,6 +136,18 @@ def map_pann_scores(raw_scores, min_confidence=0.0):
         for label in list(mapped):
             if label.casefold() in GENERIC_LABELS_SUPPRESSED_WITH_ANIMAL_MATCH:
                 del mapped[label]
+
+    # Suppress a broad label only when one of its configured specific
+    # categories has sufficient confidence. Otherwise preserve it verbatim.
+    for label, specific_categories in CONDITIONAL_LABEL_SUPPRESSION.items():
+        specific_detected = any(
+            mapped.get(category, 0.0) >= min_confidence
+            for category in specific_categories
+        )
+        if specific_detected:
+            for existing_label in list(mapped):
+                if existing_label.casefold() == label:
+                    del mapped[existing_label]
 
     farm_species_detected = any(
         mapped.get(category, 0.0) >= min_confidence
